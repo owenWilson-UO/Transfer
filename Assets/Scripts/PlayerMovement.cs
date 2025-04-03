@@ -11,11 +11,17 @@ public class PlayerMovement : MonoBehaviour
     public float moveMultiplier = 5f;
     public float airMultiplier = 0.4f;
 
+    [Header("Sprinting")]
+    [SerializeField] float walkSpeed = 4f;
+    [SerializeField] float sprintSpeed = 8f;
+    [SerializeField] float acceleration = 12f;
+
     [Header("Jumping")]
     public float jumpForce = 12f;
 
     [Header("Keybinds")]
-    [SerializeField] KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] public KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] public KeyCode sprintKey = KeyCode.LeftShift;
 
     [Header("Drag")]
     [SerializeField] float groundDrag = 6f;
@@ -61,10 +67,10 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         isGrounded = Physics.CheckSphere(groundChekPosition.position, groundDistance, groundMask);
-        print(isGrounded);
 
         MyInput();
         ControlDrag();
+        ControlSpeed();
 
         if (Input.GetKeyDown(jumpKey) && isGrounded)
         {
@@ -86,6 +92,18 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.linearVelocity = new Vector3 (rb.linearVelocity.x, 0, rb.linearVelocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
+
+    void ControlSpeed()
+    {
+        if (Input.GetKey(sprintKey) && (isGrounded || !rb.useGravity) && verticalMovement == 1)
+        {
+            moveSpeed = Mathf.Lerp(moveSpeed, sprintSpeed, acceleration * Time.deltaTime);
+        }
+        else
+        {
+            moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, acceleration * Time.deltaTime);
+        }
     }
 
     void ControlDrag()
@@ -118,7 +136,10 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             rb.AddForce(moveDir.normalized * moveSpeed * moveMultiplier * airMultiplier, ForceMode.Acceleration);
-            rb.AddForce(Vector3.down * 9.81f, ForceMode.Acceleration);
+            if (rb.useGravity)
+            {
+                rb.AddForce(Vector3.down * 9.81f, ForceMode.Acceleration);
+            }
         }
     }
 
