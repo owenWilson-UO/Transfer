@@ -55,7 +55,7 @@ public class WallRun : MonoBehaviour
     {
         CheckWall();
 
-        if (CanWallRun())
+        if (CanWallRun() && !playerMovement.isGrounded)
         {
             if (wallLeft)
             {
