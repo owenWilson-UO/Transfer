@@ -42,8 +42,8 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-    float horizontalMovement;
-    float verticalMovement;
+    public float horizontalMovement {  get; private set; }
+    public float verticalMovement { get; private set; }
 
     [Header("Ground Detection")]
     [SerializeField] LayerMask groundMask;
