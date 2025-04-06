@@ -31,5 +31,17 @@ public class AnimationStateController : MonoBehaviour
 
         if (playerMovement.isSliding) { animator.SetBool("isSliding", true); }
         else { animator.SetBool("isSliding", false); }
+
+        if (playerMovement.isCrouching) { animator.SetBool("isCrouching", true); }
+        else { animator.SetBool("isCrouching", false); }
+
+        //if (!playerMovement.isGrounded) { animator.SetBool("isJumping", true); } 
+        //else { animator.SetBool("isFalling", false); }
     }
+
+    //void EndJumpAnimation()
+    //{
+    //    animator.SetBool("isJumping", false);
+    //    animator.SetBool("isFalling", true);
+    //}
 }
