@@ -53,6 +53,7 @@ public class TransferThrowable : MonoBehaviour
 
     private void Update()
     {
+        ThrowableDetection td = FindFirstObjectByType<ThrowableDetection>();
         if (Input.GetKeyDown(throwKey))
         {
             if (readyToThrow)
@@ -61,15 +62,26 @@ public class TransferThrowable : MonoBehaviour
             }
             else
             {
-                ThrowableDetection td = FindFirstObjectByType<ThrowableDetection>();
-                rb.isKinematic = true;
-                rb.position = td.transform.position;
-                rb.linearVelocity = td.rb.linearVelocity;
-                rb.angularVelocity = td.rb.angularVelocity;
-                rb.isKinematic = false;
+                Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
                 Destroy(td.gameObject);
                 readyToThrow = true;
             }
         }
+
+        if (td && td.targetHit)
+        {
+            Transfer(td.transform.position, rb.linearVelocity, rb.angularVelocity);
+            Destroy(td.gameObject);
+            readyToThrow = true;
+        }
+    }
+
+    private void Transfer(Vector3 toPosition, Vector3 toLinearVelocity, Vector3 toAngularVelocity)
+    {
+        rb.isKinematic = true;
+        rb.position = toPosition;
+        rb.isKinematic = false;
+        rb.linearVelocity = toLinearVelocity;
+        rb.angularVelocity = toAngularVelocity;
     }
 }

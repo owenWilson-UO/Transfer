@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class ThrowableDetection : MonoBehaviour
 {
-    public Rigidbody rb;
+    public Rigidbody rb {  get; private set; }
     TransferThrowable tt;
 
-    private bool targetHit;
+    public bool targetHit {  get; private set; }
 
     void Start()
     {
@@ -26,7 +26,6 @@ public class ThrowableDetection : MonoBehaviour
             targetHit = true;
         }
         rb.isKinematic = true;
-        Destroy(transform.gameObject);
         //transform.SetParent(collision.transform);
     }
 }
