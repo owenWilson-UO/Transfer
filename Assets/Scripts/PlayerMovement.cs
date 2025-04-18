@@ -1,5 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -35,6 +38,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public KeyCode jumpKey = KeyCode.Space;
     [SerializeField] public KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] public KeyCode crouchKey = KeyCode.C;
+    [SerializeField] public KeyCode slowMotionKey = KeyCode.Q;
 
     [Header("Drag")]
     [SerializeField] float groundDrag = 6f;
@@ -52,8 +56,19 @@ public class PlayerMovement : MonoBehaviour
     public bool isCrouching { get; private set; }
     public bool isSprinting { get; private set; }
     public bool isSliding { get; private set; }
-
     public float groundDistance = 0.01f;
+
+    [Header("Slow Motion")]
+    [SerializeField] float maxSlowMotionDuration = 1f;
+    [SerializeField] float targetTimeScale = 0.2f;
+    [SerializeField] float easeDuration = 0.25f;
+    [SerializeField] Material slowMotionMaterial;
+    [SerializeField] float vignettePowerStart;
+    [SerializeField] float vignettePowerDuringSloMotion;
+    public bool isInSlowMotion { get; private set; }
+    private Coroutine slowMoCoroutine;
+    private Coroutine slowMoTimerCoroutine;
+
 
     Vector3 moveDir;
     Vector3 slopeMoveDir;
@@ -96,6 +111,27 @@ public class PlayerMovement : MonoBehaviour
         MoveInput();
         ControlDrag();
         ControlSpeed();
+
+        if (Input.GetKeyDown(slowMotionKey))
+        {
+            if (!isInSlowMotion)
+            {
+                if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
+                if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
+
+                slowMoCoroutine = StartCoroutine(SmoothTimeScale(targetTimeScale, vignettePowerStart, vignettePowerDuringSloMotion));
+                slowMoTimerCoroutine = StartCoroutine(SlowMoTimer());
+                isInSlowMotion = true;
+            }
+            else
+            {
+                if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
+                if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
+
+                slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
+                isInSlowMotion = false;
+            }
+        }
 
         if (Input.GetKeyDown(jumpKey) && isGrounded)
         {
@@ -250,18 +286,36 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.CompareTag("Ground"))
-    //    {
-    //        isGrounded = true;
-    //    }
-    //}
-    //private void OnCollisionExit(Collision collision)
-    //{
-    //    if (collision.gameObject.CompareTag("Ground"))
-    //    {
-    //        isGrounded = false;
-    //    }
-    //}
+    IEnumerator SmoothTimeScale(float target, float startShaderValue, float targetShaderValue)
+    {
+        float start = Time.timeScale;
+        float elapsed = 0f;
+
+        while (elapsed < easeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / easeDuration;
+
+            Time.timeScale = Mathf.Lerp(start, target, t);
+            Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+            float shaderValue = Mathf.Lerp(startShaderValue, targetShaderValue, t);
+            slowMotionMaterial.SetFloat("_VignettePower", shaderValue);
+
+            yield return null;
+        }
+
+        Time.timeScale = target;
+        Time.fixedDeltaTime = 0.02f * target;
+        slowMotionMaterial.SetFloat("_VignettePower", targetShaderValue);
+    }
+
+    IEnumerator SlowMoTimer()
+    {
+        yield return new WaitForSecondsRealtime(maxSlowMotionDuration);
+
+        if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
+        slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
+        isInSlowMotion = false;
+    }
 }

@@ -11,9 +11,9 @@ public class TransferThrowable : MonoBehaviour
     //[Header("Settings")]
 
     [Header("Throwing")]
-    public KeyCode throwKey = KeyCode.Mouse1;
-    public float throwForce;
-    public float throwUpwardForce;
+    [SerializeField] public KeyCode throwKey = KeyCode.Mouse1;
+    [SerializeField] public float throwForce;
+    [SerializeField] public float throwUpwardForce;
 
     bool readyToThrow;
     Rigidbody rb;
