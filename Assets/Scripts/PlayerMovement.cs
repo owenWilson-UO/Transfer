@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] Transform orientation;
+    [SerializeField] PlayerUpgradeData upgradeData;
 
     [Header("Movement")]
     public float moveSpeed = 6f;
@@ -59,7 +60,6 @@ public class PlayerMovement : MonoBehaviour
     public float groundDistance = 0.01f;
 
     [Header("Slow Motion")]
-    [SerializeField] float maxSlowMotionDuration = 1f;
     [SerializeField] float targetTimeScale = 0.2f;
     [SerializeField] float easeDuration = 0.25f;
     [SerializeField] Material slowMotionMaterial;
@@ -102,6 +102,7 @@ public class PlayerMovement : MonoBehaviour
 
         currentHeight = standingheight;
         slideTimer = 0f;
+
     }
 
     private void Update()
@@ -312,7 +313,7 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator SlowMoTimer()
     {
-        yield return new WaitForSecondsRealtime(maxSlowMotionDuration);
+        yield return new WaitForSecondsRealtime(upgradeData.maxSlowMotionDuration);
 
         if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
         slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));

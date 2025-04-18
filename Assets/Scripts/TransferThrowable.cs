@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class TransferThrowable : MonoBehaviour
 {
+    
     [Header("References")]
     public Transform cam;
     public Transform attackPoint;
@@ -14,14 +15,21 @@ public class TransferThrowable : MonoBehaviour
     [SerializeField] public KeyCode throwKey = KeyCode.Mouse1;
     [SerializeField] public float throwForce;
     [SerializeField] public float throwUpwardForce;
+    
+    [Header("Player")]
+    [SerializeField] PlayerUpgradeData upgradeData;
+    private int transferAmount;
 
     bool readyToThrow;
     Rigidbody rb;
+    
 
     private void Start()
     {
         readyToThrow = true;
         rb = GetComponent<Rigidbody>();
+        
+        transferAmount = upgradeData.maxTransferAmount; //start at 0 since we will have to get this item in the tutorial and then pickup stations will replenish to maxTransfers
     }
 
     private void Throw ()
@@ -56,14 +64,18 @@ public class TransferThrowable : MonoBehaviour
         ThrowableDetection td = FindFirstObjectByType<ThrowableDetection>();
         if (Input.GetKeyDown(throwKey))
         {
-            if (readyToThrow)
+            if (readyToThrow && transferAmount > 0)
             {
                 Throw();
+                transferAmount--;
             }
             else
             {
-                Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
-                Destroy(td.gameObject);
+                if (td)
+                {
+                    Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
+                    Destroy(td.gameObject);
+                }
                 readyToThrow = true;
             }
         }

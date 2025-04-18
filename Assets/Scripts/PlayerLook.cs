@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerLook : MonoBehaviour
 {
     [SerializeField] WallRun wallRun;
+    [SerializeField] UpgradeManagerUI upgradeManagerUI;
 
     [Header("Mouse Movement")]
     [SerializeField] private float sensX;
@@ -11,6 +12,7 @@ public class PlayerLook : MonoBehaviour
 
     [SerializeField] Transform cam;
     [SerializeField] Transform orientation;
+
 
     float mouseX;
     float mouseY;
@@ -33,15 +35,18 @@ public class PlayerLook : MonoBehaviour
 
     void MyInput()
     {
-        mouseX = Input.GetAxisRaw("Mouse X");
-        mouseY = Input.GetAxisRaw("Mouse Y");
+        if (!upgradeManagerUI.isOpen)
+        {
+            mouseX = Input.GetAxisRaw("Mouse X");
+            mouseY = Input.GetAxisRaw("Mouse Y");
 
-        yRotation += mouseX * sensX * multiplier;
-        xRotation -= mouseY * sensY * multiplier;
+            yRotation += mouseX * sensX * multiplier;
+            xRotation -= mouseY * sensY * multiplier;
 
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        cam.transform.localRotation = Quaternion.Euler(xRotation, yRotation, wallRun.tilt);
-        orientation.transform.rotation = Quaternion.Euler(0, yRotation, 0);
+            cam.transform.localRotation = Quaternion.Euler(xRotation, yRotation, wallRun.tilt);
+            orientation.transform.rotation = Quaternion.Euler(0, yRotation, 0);
+        }
     }
 }
