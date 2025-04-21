@@ -27,6 +27,7 @@ public class UpgradeManagerUI : MonoBehaviour
 
     public bool isOpen { private set; get; }
     private Coroutine fadeRoutine;
+    private Animator upgradeAnimator;
 
     private readonly Color blue = new Color(0f, 188f, 255f, 125f) / 255f;
 
@@ -70,7 +71,7 @@ public class UpgradeManagerUI : MonoBehaviour
         #endregion
 
         cg = GetComponent<CanvasGroup>();
-        
+        upgradeAnimator = GetComponent<Animator>();
         isOpen = false;
     }
 
@@ -80,22 +81,30 @@ public class UpgradeManagerUI : MonoBehaviour
         {
             isOpen = !isOpen;
 
+            if (fadeRoutine != null) StopCoroutine(fadeRoutine);
+
             if (isOpen)
             {
                 cg.interactable = true;
+                fadeRoutine = StartCoroutine(OpenSequence());
+            }
+            else
+            {
+                upgradeAnimator.SetBool("isOpen", false);
+                fadeRoutine = StartCoroutine(FadeUI(false));
             }
 
-            if (fadeRoutine != null) StopCoroutine(fadeRoutine);
-            fadeRoutine = StartCoroutine(FadeUI(isOpen));
 
             Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
             Cursor.visible = isOpen;
         }
-
+        
         if (isOpen)
         {
-            Time.timeScale = 0f;
+            upgradeAnimator.Update(Time.unscaledDeltaTime);
+            //Time.timeScale = 0f;
         }
+        
     }
 
     #region Slow Motion Upgrades
@@ -152,18 +161,25 @@ public class UpgradeManagerUI : MonoBehaviour
             t += Time.unscaledDeltaTime;
             float lerp = Mathf.Clamp01(t / duration);
 
-            cg.alpha = Mathf.Lerp(startAlphaCG, targetAlphaCG, lerp);
+            //cg.alpha = Mathf.Lerp(startAlphaCG, targetAlphaCG, lerp);
             playerCG.alpha = Mathf.Lerp(startAlphaPlayer, targetAlphaPlayer, lerp);
 
             yield return null;
         }
 
-        cg.alpha = targetAlphaCG;
+        //cg.alpha = targetAlphaCG;
         playerCG.alpha = targetAlphaPlayer;
         cg.interactable = opening;
         if (!opening)
         {
             Time.timeScale = 1f;
         }
+    }
+
+    IEnumerator OpenSequence()
+    {
+        yield return StartCoroutine(FadeUI(true));
+        upgradeAnimator.SetBool("isOpen", true);
+        Time.timeScale = 0f;
     }
 }

@@ -49,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
     public float horizontalMovement {  get; private set; }
     public float verticalMovement { get; private set; }
+    public float gravityMultiplier = 0f;
 
     [Header("Ground Detection")]
     [SerializeField] LayerMask groundMask;
@@ -272,17 +273,24 @@ public class PlayerMovement : MonoBehaviour
         if (isGrounded && !OnSlope())
         {
             rb.AddForce(moveDir.normalized * moveSpeed * moveMultiplier, ForceMode.Acceleration);
+            gravityMultiplier = 0f;
         }
         else if (isGrounded && OnSlope())
         {
             rb.AddForce(slopeMoveDir.normalized * moveSpeed * moveMultiplier, ForceMode.Acceleration);
+            gravityMultiplier = 0f;
         }
         else
         {
             rb.AddForce(moveDir.normalized * moveSpeed * moveMultiplier * airMultiplier, ForceMode.Acceleration);
             if (rb.useGravity)
             {
-                rb.AddForce(Vector3.down * 9.81f, ForceMode.Force);
+                rb.linearVelocity += Physics.gravity * Time.fixedDeltaTime + Physics.gravity * gravityMultiplier;
+                gravityMultiplier += (float) 0.025 * Time.fixedDeltaTime;
+            }
+            else
+            {
+                gravityMultiplier = 0f;
             }
         }
     }

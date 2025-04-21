@@ -22,13 +22,16 @@ public class TransferThrowable : MonoBehaviour
 
     bool readyToThrow;
     Rigidbody rb;
+    PlayerMovement playerMovement;
     
 
     private void Start()
     {
         readyToThrow = true;
         rb = GetComponent<Rigidbody>();
+        playerMovement = GetComponent<PlayerMovement>();
         
+
         transferAmount = upgradeData.maxTransferAmount; //start at 0 since we will have to get this item in the tutorial and then pickup stations will replenish to maxTransfers
     }
 
@@ -92,6 +95,7 @@ public class TransferThrowable : MonoBehaviour
     {
         rb.isKinematic = true;
         rb.position = toPosition;
+        playerMovement.gravityMultiplier = 0;
         rb.isKinematic = false;
         rb.linearVelocity = toLinearVelocity;
         rb.angularVelocity = toAngularVelocity;
