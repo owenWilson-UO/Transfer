@@ -3218,8 +3218,10 @@ MonoBehaviour:
   outerCrossHair: {fileID: 2830474355635368214}
   circleDot: {fileID: 5116282044484272324}
   attackPoint: {fileID: 1939021932611698838}
-  objectToThrow: {fileID: 0}
-  throwKey: 324
+  objectToThrow: {fileID: 7991056537988920766, guid: 079c50b95590a3f4caedb31e1a8c89b7, type: 3}
+  playerUpgradeData: {fileID: 11400000, guid: 64025b4d43730d34bb26a58dd666291a, type: 2}
+  throwKey: 323
+  readyToThrow: 0
 --- !u!1 &7151630899449638432
 GameObject:
   m_ObjectHideFlags: 0

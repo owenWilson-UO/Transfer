@@ -6,12 +6,14 @@ public class PlayerUpgradeData : ScriptableObject
 {
     public float maxSlowMotionDuration = 1f;
     public int maxTransferAmount = 1;
+    public int maxPsylinkAmount = 1;
 
 
     private void OnEnable()
     {
         maxSlowMotionDuration = 1f;
         maxTransferAmount = 1;
+        maxPsylinkAmount = 1;
         Debug.Log("OnEnable");
     }
 }
