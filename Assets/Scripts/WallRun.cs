@@ -45,6 +45,7 @@ public class WallRun : MonoBehaviour
     {
         wallLeft = Physics.Raycast(transform.position + Vector3.up, -orientation.right, out leftWallHit, wallDistance);
         wallRight = Physics.Raycast(transform.position + Vector3.up, orientation.right, out rightWallHit, wallDistance);
+        //these raycasts check if the player has a wall on its respective side in order to allow the player to wall run if in the air.
 
         Debug.DrawRay(transform.position + Vector3.up, -orientation.right * wallDistance, Color.red);
         Debug.DrawRay(transform.position + Vector3.up, orientation.right * wallDistance, Color.blue);
@@ -82,8 +83,10 @@ public class WallRun : MonoBehaviour
     {
         rb.useGravity = false;
 
+        //apply wall run gravity instead of unity's gravity
         rb.AddForce(Vector3.down * wallRunGravity, ForceMode.Force);
 
+        //this is the logic for adjusting the camera to give a nice transition to and from wall running
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, wallRunfov, wallRunfovTime * Time.deltaTime);
 
         if (wallLeft)
@@ -95,6 +98,7 @@ public class WallRun : MonoBehaviour
             tilt = Mathf.Lerp(tilt, cameraTilt, cameraTiltTime * Time.deltaTime);
         }
 
+        //this is the logic for wall jumping / jumping off of a wall
         if (Input.GetKeyDown(playerMovement.jumpKey))
         {
             if (wallLeft)

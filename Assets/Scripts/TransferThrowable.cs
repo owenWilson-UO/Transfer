@@ -47,6 +47,7 @@ public class TransferThrowable : MonoBehaviour
 
         RaycastHit hit;
 
+        //using a raycast to give the transfer a target to throw towards and add force to the transfer on instantiation
         if (Physics.Raycast(cam.position, cam.forward, out hit, 500f))
         {
             forceDir = (hit.point - attackPoint.position).normalized;
@@ -74,6 +75,9 @@ public class TransferThrowable : MonoBehaviour
             }
             else
             {
+                // If the user has thrown a Transfer but it hasn't collided with anything, teleport the user to the transfer
+                // along with the transfer's velocity
+
                 if (td)
                 {
                     Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
@@ -93,6 +97,8 @@ public class TransferThrowable : MonoBehaviour
 
     private void Transfer(Vector3 toPosition, Vector3 toLinearVelocity, Vector3 toAngularVelocity)
     {
+        //Logic for teleportation
+
         rb.isKinematic = true;
         rb.position = toPosition;
         playerMovement.gravityMultiplier = 0;

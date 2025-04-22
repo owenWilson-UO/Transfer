@@ -25,6 +25,8 @@ public class PsylinkThrowable : MonoBehaviour
 
     private void Update()
     {
+        //This is the logic for changing the crosshair when the player is looking
+        //at a psyling interactable object (object with the PsylinkInteractable tag)
         RaycastHit hit;
         psylinkInSight = Physics.Raycast(cam.position, cam.forward, out hit, 20f) && hit.transform.CompareTag("PsylinkInteractable");
         if (psylinkInSight && readyToThrow)
@@ -44,7 +46,8 @@ public class PsylinkThrowable : MonoBehaviour
         {
             if (psylinkInSight && readyToThrow) //later on add max Psylink var and skill tree upgrades
             {
-                Throw(hit.point);
+                Throw(hit.point); // We pass in the exact point of the interactable that the
+                                  // player is looking at so when the user throws the psylink, it goes straight to that point
                 readyToThrow = false;
             }
         }
@@ -63,6 +66,7 @@ public class PsylinkThrowable : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        //This is for drawing out the raycast in the scene view for testing
         Gizmos.color = Color.green;
         Gizmos.DrawLine(cam.position, cam.forward * 20f + cam.position);
     }

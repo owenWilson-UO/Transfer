@@ -25,7 +25,7 @@ public class PlayerLook : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        cam.localPosition = new Vector3(0f, 0f, 0.15f);
+        cam.localPosition = new Vector3(0f, 0f, 0.15f); // this positions the camera to a point that feels like the correct fov with the fps hands
     }
 
     private void Update()
@@ -47,6 +47,8 @@ public class PlayerLook : MonoBehaviour
 
             cam.transform.localRotation = Quaternion.Euler(xRotation, yRotation, wallRun.tilt);
             orientation.transform.rotation = Quaternion.Euler(0, yRotation, 0);
+            // using eulers here to avoid any unity physics based camera movements because of the slow motion ability,
+            // we want the player's ability to look around be independent from the time slow
         }
     }
 }

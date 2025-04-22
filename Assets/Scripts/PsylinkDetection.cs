@@ -15,6 +15,7 @@ public class PsylinkDetection : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        //logic for stopping the psylink when it hits a psylink interactable object
         if (collision.gameObject.CompareTag("Player")) { return; }
         pt.readyToThrow = true;
         if (targetHit)
@@ -27,6 +28,5 @@ public class PsylinkDetection : MonoBehaviour
         }
         rb.linearVelocity = Vector3.zero;
         rb.isKinematic = true;
-        //transform.SetParent(collision.transform);
     }
 }

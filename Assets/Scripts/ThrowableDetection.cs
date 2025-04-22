@@ -15,6 +15,7 @@ public class ThrowableDetection : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        //logic for stopping the transfer when it collides with an object
         if (collision.gameObject.CompareTag("Player")) { return; }
         tt.ResetThrow();
         if (targetHit)
@@ -26,6 +27,5 @@ public class ThrowableDetection : MonoBehaviour
             targetHit = true;
         }
         rb.isKinematic = true;
-        //transform.SetParent(collision.transform);
     }
 }

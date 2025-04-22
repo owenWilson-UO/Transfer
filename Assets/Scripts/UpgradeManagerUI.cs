@@ -34,6 +34,9 @@ public class UpgradeManagerUI : MonoBehaviour
 
     private void Start()
     {
+        //When the next level starts, in order for the upgrades to persist, we need to read
+        //in the values from the scriptable object and assign to the UI accordingly upon start
+
         #region Slow Motion On Start
         switch (upgradeData.maxSlowMotionDuration)
         {
@@ -79,6 +82,7 @@ public class UpgradeManagerUI : MonoBehaviour
     {
         if (Input.GetKeyDown(upgradeMenuKey))
         {
+            //logic for opening the upgrade menu and closing it based on the key press
             isOpen = !isOpen;
 
             if (fadeRoutine != null) StopCoroutine(fadeRoutine);
@@ -90,6 +94,7 @@ public class UpgradeManagerUI : MonoBehaviour
             }
             else
             {
+                //this boolean controls the animation state of the upgrade menu
                 upgradeAnimator.SetBool("isOpen", false);
                 fadeRoutine = StartCoroutine(FadeUI(false));
             }
@@ -106,6 +111,8 @@ public class UpgradeManagerUI : MonoBehaviour
         }
         
     }
+
+    //Methods that are tied to the upgrade buttons
 
     #region Slow Motion Upgrades
     public void OnSlowMotionTier2Press()
@@ -161,13 +168,11 @@ public class UpgradeManagerUI : MonoBehaviour
             t += Time.unscaledDeltaTime;
             float lerp = Mathf.Clamp01(t / duration);
 
-            //cg.alpha = Mathf.Lerp(startAlphaCG, targetAlphaCG, lerp);
             playerCG.alpha = Mathf.Lerp(startAlphaPlayer, targetAlphaPlayer, lerp);
 
             yield return null;
         }
 
-        //cg.alpha = targetAlphaCG;
         playerCG.alpha = targetAlphaPlayer;
         cg.interactable = opening;
         if (!opening)

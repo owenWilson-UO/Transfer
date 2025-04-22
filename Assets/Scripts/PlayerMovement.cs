@@ -45,7 +45,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float groundDrag = 6f;
     [SerializeField] float airDrag = 2f;
 
-
+    //multiple properties here have private sets but public gets. This is because I need a reference to those properties in 
+    //other scripts but I don't want those other scripts to able to modify those properties
 
     public float horizontalMovement {  get; private set; }
     public float verticalMovement { get; private set; }
@@ -82,7 +83,10 @@ public class PlayerMovement : MonoBehaviour
 
     private bool OnSlope()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, 3 / 2 + 0.5f))
+        //This function uses a raycast to determine if the
+        //object the player is standing on is perpendicular to the global vertical vector.
+        //This checks if the object is not horizontal which means it is a slope.
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, 1.5f))
         {
             if (slopeHit.normal != Vector3.up)
             {
@@ -109,11 +113,17 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         isGrounded = Physics.CheckSphere(groundChekPosition.position, groundDistance, groundMask);
+        //checksphere is similar to raycast but it creates a sphere centered at a given position with a given radius.
+        //This returns true if any colliders overlap the sphere of a specific layer (ground in this case).
 
         MoveInput();
         ControlDrag();
         ControlSpeed();
 
+
+        //Logic for slowing down time. Since we use unity's physics for everything,
+        //we can simply change the global Time.timeScale to slow down time.
+        //We do this here using a Coroutine to avoid a snappy change in and out of slow motion
         if (Input.GetKeyDown(slowMotionKey))
         {
             if (!isInSlowMotion)
@@ -122,7 +132,9 @@ public class PlayerMovement : MonoBehaviour
                 if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
 
                 slowMoCoroutine = StartCoroutine(SmoothTimeScale(targetTimeScale, vignettePowerStart, vignettePowerDuringSloMotion));
-                slowMoTimerCoroutine = StartCoroutine(SlowMoTimer());
+                slowMoTimerCoroutine = StartCoroutine(SlowMoTimer()); 
+                //This will automatically turn off the slow motion ability if the slowMotionKey is not pressed
+                //before the players current maxDuration time has passsed.
                 isInSlowMotion = true;
             }
             else
@@ -154,6 +166,9 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (Input.GetKey(crouchKey) && isGrounded && isSprinting && slideTimer == 0f)
         {
+            //Sliding logic that locks the player into sliding that direction until the slide is up
+            //and there is a 0.5s cooldown until you can slide again
+
             isSliding = true;
             isCrouching = true;
 
@@ -165,10 +180,9 @@ public class PlayerMovement : MonoBehaviour
             }
             rb.AddForce(slideDir.normalized * slideForce, ForceMode.Impulse);
             rb.AddForce(Vector3.down * 1f, ForceMode.Impulse);
-
         }
 
-        if (slideTimer > 0)
+        if (slideTimer > 0) // timer to control how long the player is sliding and the cooldown
         {
             slideTimer -= Time.deltaTime;
             if (slideTimer <= 0f)
@@ -184,9 +198,12 @@ public class PlayerMovement : MonoBehaviour
 
         ControlCrouch();
         
-        slopeMoveDir = Vector3.ProjectOnPlane(moveDir, slopeHit.normal);
+        slopeMoveDir = Vector3.ProjectOnPlane(moveDir, slopeHit.normal); 
+        //using the RaycastHit from the OnSlope method, we can move on a slope (i.e. stairs smoothly with no wierd physics)
     }
 
+    
+    //Controls basic player movement
     void MoveInput()
     {
         horizontalMovement = Input.GetAxisRaw("Horizontal");
@@ -206,6 +223,7 @@ public class PlayerMovement : MonoBehaviour
 
     void ControlSpeed()
     {
+        //Changes the movement speed of the player based on the player's state
         if (Input.GetKey(sprintKey) && (isGrounded || !rb.useGravity) && verticalMovement == 1)
         {
             moveSpeed = Mathf.Lerp(moveSpeed, sprintSpeed, acceleration * Time.deltaTime);
@@ -227,6 +245,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // drag is what one can think of as an ice feeling.
+    // We dont want the player to abruptly stop when the player stops pressing a direction, that doesn't feel right.
+    // We also don't want the player to have the same amount of drag when in the air either. The last case is when sliding,
+    // we want the player to slide further than they normaly would especially since when we slide, it's a simple impulse force that is added to the player,
+    // so if we want that to carry we need less drag.
     void ControlDrag()
     {
         if (isGrounded)
@@ -256,11 +279,6 @@ public class PlayerMovement : MonoBehaviour
             Time.deltaTime * crouchTransitionSpeed
         );
         capsule.height = currentHeight;
-
-        //if (isCrouching && !OnSlope())
-        //{
-        //    rb.AddForce(Vector3.down * 0.5f, ForceMode.Impulse);
-        //}
     }
 
     private void FixedUpdate()
@@ -270,6 +288,7 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
+        //Physics for moving the player
         if (isGrounded && !OnSlope())
         {
             rb.AddForce(moveDir.normalized * moveSpeed * moveMultiplier, ForceMode.Acceleration);
@@ -287,6 +306,9 @@ public class PlayerMovement : MonoBehaviour
             {
                 rb.linearVelocity += Physics.gravity * Time.fixedDeltaTime + Physics.gravity * gravityMultiplier;
                 gravityMultiplier += (float) 0.025 * Time.fixedDeltaTime;
+                //with the build in gravity, its a constant 9.81f of downward force so im using this multiplier to increase
+                //the downward force the longer the player is in the air, adjusting it back to 0 when needed like when wall running
+                //or after transfering
             }
             else
             {
