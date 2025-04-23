@@ -70,7 +70,7 @@ public class PsylinkThrowable : MonoBehaviour
         GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
 
         Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
-        StartCoroutine(MoveToTarget(projectile.transform, point, 0.5f));
+        StartCoroutine(MoveToTarget(projectile.transform, point, 0.25f));
     }
 
     private IEnumerator MoveToTarget(Transform obj, Vector3 target, float duration)

@@ -5,18 +5,23 @@ using UnityEngine.UI;
 public class UpgradeManagerUI : MonoBehaviour
 {
     [SerializeField] PlayerUpgradeData upgradeData;
+    [SerializeField] PlayerMovement playerMovement;
 
     [Header("Buttons")]
     [SerializeField] Button SMT2;
     [SerializeField] Button SMT3;
     [SerializeField] Button TT2;
     [SerializeField] Button TT3;
+    [SerializeField] Button P2;
+    [SerializeField] Button P3;
 
     [Header("Links")]
     [SerializeField] Image SM12;
     [SerializeField] Image SM23;
     [SerializeField] Image T12;
     [SerializeField] Image T23;
+    [SerializeField] Image P12;
+    [SerializeField] Image P23;
 
     [Header("Canvas Groups")]
     CanvasGroup cg;
@@ -73,6 +78,24 @@ public class UpgradeManagerUI : MonoBehaviour
         }
         #endregion
 
+        #region Psylink On Start
+        switch (upgradeData.maxPsylinkAmount)
+        {
+            case 2:
+                P2.interactable = false;
+                P12.color = blue;
+                break;
+            case 3:
+                P3.interactable = false;
+                P2.interactable = false;
+                P12.color = blue;
+                P23.color = blue;
+                break;
+            default:
+                break;
+        }
+        #endregion
+
         cg = GetComponent<CanvasGroup>();
         upgradeAnimator = GetComponent<Animator>();
         isOpen = false;
@@ -80,7 +103,7 @@ public class UpgradeManagerUI : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(upgradeMenuKey))
+        if (Input.GetKeyDown(upgradeMenuKey) && !playerMovement.isInSlowMotion)
         {
             //logic for opening the upgrade menu and closing it based on the key press
             isOpen = !isOpen;
@@ -152,6 +175,25 @@ public class UpgradeManagerUI : MonoBehaviour
     }
     #endregion
 
+    #region Psylink Upgrades
+    public void OnPsylinkTier2Press()
+    {
+        upgradeData.maxPsylinkAmount = 2;
+        P2.interactable = false;
+        P12.color = blue;
+    }
+
+    public void OnPsylinkTier3Press()
+    {
+        if (upgradeData.maxPsylinkAmount == 2)
+        {
+            upgradeData.maxPsylinkAmount = 3;
+            P3.interactable = false;
+            P23.color = blue;
+        }
+    }
+    #endregion
+
     IEnumerator FadeUI(bool opening)
     {
         float t = 0f;
@@ -185,6 +227,7 @@ public class UpgradeManagerUI : MonoBehaviour
     {
         yield return StartCoroutine(FadeUI(true));
         upgradeAnimator.SetBool("isOpen", true);
+
         Time.timeScale = 0f;
     }
 }

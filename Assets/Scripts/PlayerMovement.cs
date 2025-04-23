@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] Transform orientation;
     [SerializeField] PlayerUpgradeData upgradeData;
+    [SerializeField] UpgradeManagerUI upgradeManagerUI;
 
     [Header("Movement")]
     public float moveSpeed = 6f;
@@ -124,7 +125,7 @@ public class PlayerMovement : MonoBehaviour
         //Logic for slowing down time. Since we use unity's physics for everything,
         //we can simply change the global Time.timeScale to slow down time.
         //We do this here using a Coroutine to avoid a snappy change in and out of slow motion
-        if (Input.GetKeyDown(slowMotionKey))
+        if (Input.GetKeyDown(slowMotionKey) && !upgradeManagerUI.isOpen)
         {
             if (!isInSlowMotion)
             {
@@ -147,7 +148,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(jumpKey) && isGrounded)
+        if (Input.GetKeyDown(jumpKey) && isGrounded && !upgradeManagerUI.isOpen)
         {
             if (isCrouching)
             {
@@ -159,12 +160,12 @@ public class PlayerMovement : MonoBehaviour
                 Jump();
             }
         }
-        if (Input.GetKeyDown(crouchKey) && isGrounded && !isSprinting)
+        if (Input.GetKeyDown(crouchKey) && isGrounded && !isSprinting && !upgradeManagerUI.isOpen)
         {
             isCrouching = !isCrouching;
             isSliding = false;
         }
-        else if (Input.GetKey(crouchKey) && isGrounded && isSprinting && slideTimer == 0f)
+        else if (Input.GetKey(crouchKey) && isGrounded && isSprinting && slideTimer == 0f && !upgradeManagerUI.isOpen)
         {
             //Sliding logic that locks the player into sliding that direction until the slide is up
             //and there is a 0.5s cooldown until you can slide again
