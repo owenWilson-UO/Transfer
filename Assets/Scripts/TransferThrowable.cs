@@ -18,7 +18,7 @@ public class TransferThrowable : MonoBehaviour
     
     [Header("Player")]
     [SerializeField] PlayerUpgradeData upgradeData;
-    private int transferAmount;
+    public int transferAmount {  get; set; } // public set because we impliment cooldown logic in the HUDManager script
 
     bool readyToThrow;
     Rigidbody rb;
@@ -61,6 +61,7 @@ public class TransferThrowable : MonoBehaviour
     public void ResetThrow()
     {
         readyToThrow = true;
+        transferAmount--;
     }
 
     private void Update()
@@ -71,7 +72,7 @@ public class TransferThrowable : MonoBehaviour
             if (readyToThrow && transferAmount > 0)
             {
                 Throw();
-                transferAmount--;
+                //transferAmount--; testing if its better to start regen after the teleportation
             }
             else
             {
@@ -82,8 +83,9 @@ public class TransferThrowable : MonoBehaviour
                 {
                     Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
                     Destroy(td.gameObject);
+                    ResetThrow();
                 }
-                readyToThrow = true;
+                readyToThrow = true; //just in case something wierd happens
             }
         }
 
@@ -91,7 +93,7 @@ public class TransferThrowable : MonoBehaviour
         {
             Transfer(td.transform.position, rb.linearVelocity, rb.angularVelocity);
             Destroy(td.gameObject);
-            readyToThrow = true;
+            ResetThrow();
         }
     }
 

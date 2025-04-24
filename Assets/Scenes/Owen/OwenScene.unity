@@ -1247,17 +1247,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2074920949}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &869991029 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1589123629470925692, guid: 50fa8bb485d623e44a3187bcbf46afab, type: 3}
-  m_PrefabInstance: {fileID: 5442324896812781067}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 995fd672b2abf914f8aa9a7b48dc6de1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &909149204
 GameObject:
   m_ObjectHideFlags: 0
@@ -2329,10 +2318,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerAndCam
       objectReference: {fileID: 0}
-    - target: {fileID: 1859275655154555831, guid: 50fa8bb485d623e44a3187bcbf46afab, type: 3}
-      propertyPath: upgradeManagerUI
-      value: 
-      objectReference: {fileID: 869991029}
     - target: {fileID: 5976349628472943633, guid: 50fa8bb485d623e44a3187bcbf46afab, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

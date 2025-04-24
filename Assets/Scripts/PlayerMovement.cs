@@ -68,9 +68,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Material slowMotionMaterial;
     [SerializeField] float vignettePowerStart;
     [SerializeField] float vignettePowerDuringSloMotion;
+    [SerializeField] Image slowMoFillImage;
+    [SerializeField] Image slowMoHighlightImage;
     public bool isInSlowMotion { get; private set; }
+    public bool slowMotionCoolingDown { get; private set; }
+    private float slowMotionDurationUsed;
     private Coroutine slowMoCoroutine;
     private Coroutine slowMoTimerCoroutine;
+    private Coroutine slowMoCoolDownCoroutine;
 
 
     Vector3 moveDir;
@@ -109,6 +114,7 @@ public class PlayerMovement : MonoBehaviour
         currentHeight = standingheight;
         slideTimer = 0f;
 
+        slowMotionDurationUsed = 0f;
     }
 
     private void Update()
@@ -125,7 +131,7 @@ public class PlayerMovement : MonoBehaviour
         //Logic for slowing down time. Since we use unity's physics for everything,
         //we can simply change the global Time.timeScale to slow down time.
         //We do this here using a Coroutine to avoid a snappy change in and out of slow motion
-        if (Input.GetKeyDown(slowMotionKey) && !upgradeManagerUI.isOpen)
+        if (Input.GetKeyDown(slowMotionKey) && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
         {
             if (!isInSlowMotion)
             {
@@ -340,14 +346,57 @@ public class PlayerMovement : MonoBehaviour
         Time.timeScale = target;
         Time.fixedDeltaTime = 0.02f * target;
         slowMotionMaterial.SetFloat("_VignettePower", targetShaderValue);
+        if (target == 1f) // Going out of slow motion
+        {
+            //start slow motion cooldown timer
+            if (slowMoCoolDownCoroutine != null) StopCoroutine(slowMoCoolDownCoroutine);
+            slowMoCoolDownCoroutine = StartCoroutine(SlowMoCoolDown(Mathf.Clamp01(slowMotionDurationUsed/upgradeData.maxSlowMotionDuration) * 5f));
+        }
     }
 
     IEnumerator SlowMoTimer()
     {
-        yield return new WaitForSecondsRealtime(upgradeData.maxSlowMotionDuration);
+        float duration = upgradeData.maxSlowMotionDuration;
+        slowMotionDurationUsed = 0f;
+
+        //show progresss left on slow motion ability
+        while (slowMotionDurationUsed < duration)
+        {
+            slowMotionDurationUsed += Time.unscaledDeltaTime;
+            slowMoFillImage.fillAmount = 1f - Mathf.Clamp01(slowMotionDurationUsed / duration);
+            slowMoHighlightImage.fillAmount = 1f - Mathf.Clamp01(slowMotionDurationUsed / duration);
+
+            yield return null;
+        }
 
         if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
         slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
         isInSlowMotion = false;
+        slowMoFillImage.fillAmount = 0f;
+        slowMoHighlightImage.fillAmount = 0f;
+    }
+
+    IEnumerator SlowMoCoolDown(float elapsedCalc)
+    {
+        slowMotionCoolingDown = true;
+        float duration = 5f; //5 second cooldown (maybe add upgrade later to decrease cooldown)
+        float elapsed = duration - elapsedCalc; //this calculates the starting point at which the users cooldown should begin from
+        //depending on if they exited slow motion before the maxSlowMotionDuration passed
+
+        //visual for slow motion cooldown using in game time
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            slowMoFillImage.fillAmount = 0f + Mathf.Clamp01(elapsed / duration);
+            slowMoHighlightImage.fillAmount = 0f + Mathf.Clamp01(elapsed / duration);
+
+            yield return null;
+        }
+
+        slowMoFillImage.fillAmount = 1f;
+        slowMoHighlightImage.fillAmount = 1f;
+        slowMotionCoolingDown = false;
+
+        slowMotionDurationUsed = 0f;
     }
 }
