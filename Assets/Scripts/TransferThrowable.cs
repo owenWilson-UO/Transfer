@@ -8,6 +8,8 @@ public class TransferThrowable : MonoBehaviour
     public Transform cam;
     public Transform attackPoint;
     public GameObject objectToThrow;
+    public UpgradeManagerUI upgradeManagerUI;
+
 
     //[Header("Settings")]
 
@@ -40,6 +42,12 @@ public class TransferThrowable : MonoBehaviour
         readyToThrow = false;
 
         GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
+        projectile.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
+        Quaternion xTilt = Quaternion.Euler(90f, 0f, 0f);
+        projectile.transform.rotation = projectile.transform.rotation * xTilt;
+
+        Quaternion yTilt = Quaternion.Euler(0f, 90f, 0f);
+        projectile.transform.rotation = projectile.transform.rotation * yTilt;
 
         Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
 
@@ -67,12 +75,11 @@ public class TransferThrowable : MonoBehaviour
     private void Update()
     {
         ThrowableDetection td = FindFirstObjectByType<ThrowableDetection>();
-        if (Input.GetKeyDown(throwKey))
+        if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
         {
             if (readyToThrow && transferAmount > 0)
             {
                 Throw();
-                //transferAmount--; testing if its better to start regen after the teleportation
             }
             else
             {

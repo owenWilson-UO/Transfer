@@ -14,6 +14,7 @@ public class PsylinkThrowable : MonoBehaviour
     [SerializeField] private Transform attackPoint;
     [SerializeField] private GameObject objectToThrow;
     [SerializeField] private PlayerUpgradeData playerUpgradeData;
+    [SerializeField] private UpgradeManagerUI upgradeManagerUI;
 
     [Header("KeyBinds")]
     [SerializeField] KeyCode throwKey;
@@ -47,7 +48,7 @@ public class PsylinkThrowable : MonoBehaviour
             outerCrossHair.rectTransform.rotation = Quaternion.identity;
         }
 
-        if (Input.GetKeyDown(throwKey))
+        if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
         {
             if (psylinkInSight && readyToThrow) //later on add max Psylink var and skill tree upgrades
             {
@@ -68,7 +69,9 @@ public class PsylinkThrowable : MonoBehaviour
     {
 
         GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
-
+        projectile.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
+        Quaternion tilt = Quaternion.Euler(90f, 0f, 0f);
+        projectile.transform.rotation = projectile.transform.rotation * tilt;
         Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
         StartCoroutine(MoveToTarget(projectile.transform, point, 0.25f));
     }

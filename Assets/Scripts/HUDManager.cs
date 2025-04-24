@@ -27,9 +27,10 @@ public class HUDManager : MonoBehaviour
         transferAmountText.text = tt.transferAmount.ToString();
         psylinkAmountText.text = (playerUpgradeData.maxPsylinkAmount - pt.activePsylinks.Count).ToString();
 
+        transferTextImage.color = tt.transferAmount == 0 ? grey : blue; 
+        
         if (tt.transferAmount < playerUpgradeData.maxTransferAmount && transferCoroutine == null)
         {
-            transferTextImage.color = tt.transferAmount == 0 ? grey : blue; 
             transferCoroutine = StartCoroutine(TransferCooldown());
         }
     }

@@ -7,12 +7,24 @@ public class PsylinkDetection : MonoBehaviour
     PsylinkThrowable pt;
     public bool targetHit {  get; private set; }
 
+    private bool isSpinning;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         pt = FindFirstObjectByType<PsylinkThrowable>();
+
+        isSpinning = true;
+    }
+
+    private void Update()
+    {
+        if (isSpinning)
+        {
+            transform.Rotate(0f, 1080f * Time.deltaTime, 0f);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -20,6 +32,7 @@ public class PsylinkDetection : MonoBehaviour
         //logic for stopping the psylink when it hits a psylink interactable object
         if (other.gameObject.CompareTag("Player")) { return; }
         pt.readyToThrow = true;
+        isSpinning = false;
         if (targetHit)
         {
             return;

@@ -146,6 +146,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
+                slowMotionCoolingDown = true;
                 if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
                 if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
 
@@ -369,6 +370,7 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 
+        slowMotionCoolingDown = true;
         if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
         slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
         isInSlowMotion = false;
@@ -378,7 +380,6 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator SlowMoCoolDown(float elapsedCalc)
     {
-        slowMotionCoolingDown = true;
         float duration = 5f; //5 second cooldown (maybe add upgrade later to decrease cooldown)
         float elapsed = duration - elapsedCalc; //this calculates the starting point at which the users cooldown should begin from
         //depending on if they exited slow motion before the maxSlowMotionDuration passed

@@ -2053,9 +2053,9 @@ RectTransform:
   - {fileID: 8657809941424587764}
   m_Father: {fileID: 4589986621620721300}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 558, y: 302}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1475562335638237889
@@ -5326,6 +5326,7 @@ MonoBehaviour:
   cam: {fileID: 7238208225161759551}
   attackPoint: {fileID: 8324724056660619454}
   objectToThrow: {fileID: 544319391935441497, guid: 0c79514fda2e9bd45aa2e55eecfb7250, type: 3}
+  upgradeManagerUI: {fileID: 1589123629470925692}
   throwKey: 324
   throwForce: 20
   throwUpwardForce: 1.5
@@ -5349,6 +5350,7 @@ MonoBehaviour:
   attackPoint: {fileID: 1939021932611698838}
   objectToThrow: {fileID: 7991056537988920766, guid: 079c50b95590a3f4caedb31e1a8c89b7, type: 3}
   playerUpgradeData: {fileID: 11400000, guid: 64025b4d43730d34bb26a58dd666291a, type: 2}
+  upgradeManagerUI: {fileID: 1589123629470925692}
   throwKey: 323
   readyToThrow: 0
 --- !u!1 &7151630899449638432
