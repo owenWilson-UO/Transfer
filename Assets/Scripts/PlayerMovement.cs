@@ -86,6 +86,9 @@ public class PlayerMovement : MonoBehaviour
 
     RaycastHit slopeHit;
 
+    private Transform currentPlatform;
+    private Vector3 lastPlatformPosition;
+
 
     private bool OnSlope()
     {
@@ -292,6 +295,14 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
+
+        //move player with psylink platform if moving
+        if (currentPlatform != null)
+        {
+            Vector3 platformMovement = currentPlatform.position - lastPlatformPosition;
+            transform.position += platformMovement;
+            lastPlatformPosition = currentPlatform.position;
+        }
     }
 
     void MovePlayer()
@@ -399,5 +410,32 @@ public class PlayerMovement : MonoBehaviour
         slowMotionCoolingDown = false;
 
         slowMotionDurationUsed = 0f;
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if ((isGrounded || !rb.useGravity) && collision.gameObject.CompareTag("PsylinkInteractable"))
+        {
+            currentPlatform = collision.transform;
+            lastPlatformPosition = currentPlatform.position;
+            Debug.Log($"stuck  ground {isGrounded} wall run {!rb.useGravity}");
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("PsylinkInteractable") && collision.transform == currentPlatform)
+        {
+            currentPlatform = null;
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Physics.CheckSphere(groundChekPosition.position, groundDistance, groundMask)
+            ? Color.green
+            : Color.red;
+
+        Gizmos.DrawWireSphere(groundChekPosition.position, groundDistance);
     }
 }

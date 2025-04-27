@@ -12,6 +12,8 @@ public class PsylinkInteractableObject : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float speed = 10f;
     public bool isMoving {  get; private set; }
+    private Vector3 velocity = Vector3.zero;
+    private float easeAmount = 2f;
 
     private void Start()
     {
