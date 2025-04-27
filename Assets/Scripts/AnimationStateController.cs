@@ -14,8 +14,19 @@ public class AnimationStateController : MonoBehaviour
     [Tooltip("How quickly the knife blends into the tilt")]
     [SerializeField] private float tiltSpeed = 8f;
 
+    [Header("Sprint FOV")]
+    [Tooltip("Your main camera here")]
+    [SerializeField] private Camera playerCamera;
+    [Tooltip("FOV when walking / idle")]
+    [SerializeField] private float baseFOV = 60f;
+    [Tooltip("FOV when sprinting")]
+    [SerializeField] private float sprintFOV = 75f;
+    [Tooltip("How quickly FOV transitions")]
+    [SerializeField] private float fovLerpSpeed = 6f;
+
     // store the knife’s rest (initial) local rotation
     private Quaternion _knifeRestRot;
+    private float _currentTargetFOV;
 
     void Start()
     {
@@ -23,6 +34,13 @@ public class AnimationStateController : MonoBehaviour
 
         if (knifeTransform != null)
             _knifeRestRot = knifeTransform.localRotation;
+        
+        if (playerCamera != null)
+        {
+            // override baseFOV if you left it at 0
+            baseFOV = playerCamera.fieldOfView;
+            _currentTargetFOV = baseFOV;
+        }
     }
 
     void Update()
@@ -69,6 +87,22 @@ public class AnimationStateController : MonoBehaviour
                 knifeTransform.localRotation,
                 targetRot,
                 Time.deltaTime * tiltSpeed
+            );
+        }
+
+        // — FOV blend —
+        if (playerCamera != null)
+        {
+            // decide where we’re heading
+            _currentTargetFOV = playerMovement.isSprinting 
+                ? sprintFOV 
+                : baseFOV;
+
+            // smooth lerp
+            playerCamera.fieldOfView = Mathf.Lerp(
+                playerCamera.fieldOfView,
+                _currentTargetFOV,
+                Time.deltaTime * fovLerpSpeed
             );
         }
     }
