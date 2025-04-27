@@ -20,12 +20,12 @@ public class PsylinkInteractableObject : MonoBehaviour
         a = transform.position;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
 
         //updates the objects position go towards point b if a psylink is attatched, or back to point a if there is no psylink attatched
         Vector3 target = pt.activePsylinks.Any(item => item.obj == gameObject) ? b.position : a;
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.fixedDeltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
         
         //this boolean is being used to stop the player from being able to throw a psylink at the object if it is moving
         isMoving = Vector3.Distance(transform.position, target) > 0.01f;
