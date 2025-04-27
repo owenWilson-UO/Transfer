@@ -1,3 +1,4 @@
+// HUDManager.cs
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -19,9 +20,8 @@ public class HUDManager : MonoBehaviour
 
     private Coroutine transferCoroutine;
     private Color blue = new Color(0f, 186f/255f, 255f/255f);
-    private Color grey = new Color(150f/255f, 150/255f, 150f/255f);
+    private Color grey = new Color(150f/255f, 150f/255f, 150f/255f);
 
-    // Logic for updating the ui for each ability besides slow motion
     void Update()
     {
         transferAmountText.text = tt.transferAmount.ToString();
@@ -30,9 +30,7 @@ public class HUDManager : MonoBehaviour
         transferTextImage.color = tt.transferAmount == 0 ? grey : blue; 
         
         if (tt.transferAmount < playerUpgradeData.maxTransferAmount && transferCoroutine == null)
-        {
             transferCoroutine = StartCoroutine(TransferCooldown());
-        }
     }
 
     IEnumerator TransferCooldown()
@@ -43,18 +41,22 @@ public class HUDManager : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            transferFillImage.fillAmount = Mathf.Clamp01(elapsed/duration);
+            transferFillImage.fillAmount = Mathf.Clamp01(elapsed / duration);
             if (tt.transferAmount == 0)
-            {
-                transferFillBorder.fillAmount = Mathf.Clamp01(elapsed/duration);
-            }
+                transferFillBorder.fillAmount = Mathf.Clamp01(elapsed / duration);
 
             yield return null;
         }
+
+        // Replenish one transfer
         tt.transferAmount++;
         transferFillImage.fillAmount = 1f;
         transferFillBorder.fillAmount = 1f;
-        if (transferCoroutine != null) StopCoroutine(transferCoroutine);
+
+        // Tell TransferThrowable to respawn the knife in hand
+        tt.SpawnHandKnife();
+
+        StopCoroutine(transferCoroutine);
         transferCoroutine = null;
     }
 }
