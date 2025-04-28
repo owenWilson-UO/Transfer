@@ -8,7 +8,8 @@ public class TransferThrowable : MonoBehaviour
     public Transform attackPoint;
     public GameObject objectToThrow;
     public UpgradeManagerUI upgradeManagerUI;
-    public ParticleSystem teleport;
+    public ParticleSystem teleport;                   // your VFX
+
     [Tooltip("The knife model in the player's hand")]
     [SerializeField] private GameObject handKnife;
 
@@ -39,10 +40,8 @@ public class TransferThrowable : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
         readyToThrow = true;
 
-        // initialize charge count
         transferAmount = upgradeData.maxTransferAmount;
 
-        // cache the knife’s normal scale
         if (handKnife != null)
         {
             _knifeRestScale = handKnife.transform.localScale;
@@ -57,13 +56,9 @@ public class TransferThrowable : MonoBehaviour
         if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
         {
             if (readyToThrow && transferAmount > 0)
-            {
                 Throw();
-            }
             else if (td != null)
-            {
                 TeleportToTransfer(td);
-            }
         }
 
         if (td != null && td.targetHit)
@@ -73,23 +68,29 @@ public class TransferThrowable : MonoBehaviour
     private void Throw()
     {
         readyToThrow = false;
-        handKnife?.SetActive(false);    // hide in-hand knife
+        handKnife?.SetActive(false);
 
-        // spawn projectile
         var proj = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
-        var rbProj = proj.GetComponent<Rigidbody>();
+        var projRb = proj.GetComponent<Rigidbody>();
+
         Vector3 dir = cam.forward;
         if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
             dir = (hit.point - attackPoint.position).normalized;
 
-        rbProj.AddForce(dir * throwForce + transform.up * throwUpwardForce, ForceMode.Impulse);
+        projRb.AddForce(dir * throwForce + transform.up * throwUpwardForce, ForceMode.Impulse);
     }
 
     private void TeleportToTransfer(ThrowableDetection td)
     {
-        // move player
+        // reposition
         rb.isKinematic = true;
         rb.position = td.transform.position;
+
+        // play VFX
+        teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        teleport.Play();
+
+        // restore physics & momentum
         playerMovement.gravityMultiplier = 0f;
         rb.isKinematic = false;
         rb.linearVelocity = td.rb.linearVelocity * 1.25f;
@@ -108,20 +109,16 @@ public class TransferThrowable : MonoBehaviour
             SpawnHandKnife();
     }
 
-    /// <summary>
-    /// Activates the handKnife and “prints” it by animating its Y-scale from 0→full.
-    /// </summary>
     public void SpawnHandKnife()
     {
-        if (handKnife == null || handKnife.activeSelf) return;
+        if (handKnife == null || handKnife.activeSelf)
+            return;
 
         handKnife.SetActive(true);
 
-        // stop any ongoing print animation
         if (_printCoroutine != null)
             StopCoroutine(_printCoroutine);
 
-        // start from zero height
         var t = handKnife.transform;
         t.localScale = new Vector3(_knifeRestScale.x, 0f, _knifeRestScale.z);
         _printCoroutine = StartCoroutine(PrintCoroutine());
@@ -147,23 +144,5 @@ public class TransferThrowable : MonoBehaviour
         // ensure exact final scale
         t.localScale = _knifeRestScale;
         _printCoroutine = null;
-            Transfer(td.transform.position, rb.linearVelocity, rb.angularVelocity);
-            Destroy(td.gameObject);
-            ResetThrow();
-        }
-    }
-
-    private void Transfer(Vector3 toPosition, Vector3 toLinearVelocity, Vector3 toAngularVelocity)
-    {
-        rb.isKinematic = true;
-        rb.position = toPosition;
-
-        teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); //playes teleport effect after being teleported
-        teleport.Play();
-
-        playerMovement.gravityMultiplier = 0;
-        rb.isKinematic = false;
-        rb.linearVelocity = toLinearVelocity * 1.25f;
-        rb.angularVelocity = toAngularVelocity * 1.25f;
     }
 }
