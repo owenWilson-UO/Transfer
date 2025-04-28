@@ -1,5 +1,4 @@
-// TransferThrowable.cs
-using System.Net.NetworkInformation;
+using System.Collections;
 using UnityEngine;
 
 public class TransferThrowable : MonoBehaviour
@@ -8,108 +7,144 @@ public class TransferThrowable : MonoBehaviour
     public Transform cam;
     public Transform attackPoint;
     public GameObject objectToThrow;
-    [SerializeField] private GameObject handKnife;    // assign your in-hand knife here
     public UpgradeManagerUI upgradeManagerUI;
+    [Tooltip("The knife model in the player's hand")]
+    [SerializeField] private GameObject handKnife;
 
     [Header("Throwing")]
-    [SerializeField] public KeyCode throwKey = KeyCode.Mouse1;
-    [SerializeField] public float throwForce;
-    [SerializeField] public float throwUpwardForce;
+    public KeyCode throwKey = KeyCode.Mouse1;
+    public float throwForce;
+    public float throwUpwardForce;
 
     [Header("Player")]
-    [SerializeField] PlayerUpgradeData upgradeData;
+    [SerializeField] private PlayerUpgradeData upgradeData;
     public int transferAmount { get; set; }
 
-    bool readyToThrow;
-    Rigidbody rb;
-    PlayerMovement playerMovement;
+    [Header("Print-In Animation")]
+    [Tooltip("How long the print-in takes")]
+    [SerializeField] private float spawnDuration = 0.3f;
 
-    private void Start()
+    private bool readyToThrow;
+    private Rigidbody rb;
+    private PlayerMovement playerMovement;
+
+    // cache the knife’s “ready” scale
+    private Vector3 _knifeRestScale;
+    private Coroutine _printCoroutine;
+
+    void Start()
     {
-        readyToThrow = true;
         rb = GetComponent<Rigidbody>();
         playerMovement = GetComponent<PlayerMovement>();
-
-        transferAmount = upgradeData.maxTransferAmount;
-
-        // Initialize the hand-knife visibility
-        if (handKnife != null)
-            handKnife.SetActive(transferAmount > 0);
-    }
-
-    private void Throw()
-    {
-        readyToThrow = false;
-
-        // Hide the knife in your hand
-        if (handKnife != null)
-            handKnife.SetActive(false);
-
-        // Spawn projectile
-        GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
-        projectile.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
-        projectile.transform.rotation *= Quaternion.Euler(90f, 0f, 0f);
-        projectile.transform.rotation *= Quaternion.Euler(0f, 90f, 0f);
-
-        Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
-
-        Vector3 forceDir = cam.forward;
-        if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
-            forceDir = (hit.point - attackPoint.position).normalized;
-
-        Vector3 forceToAdd = forceDir * throwForce + transform.up * throwUpwardForce;
-        projectileRB.AddForce(forceToAdd, ForceMode.Impulse);
-    }
-
-    public void ResetThrow()
-    {
-        transferAmount--;
         readyToThrow = true;
 
-        // if you still have knives left, immediately respawn the next one
-        if (transferAmount > 0)
-            SpawnHandKnife();
-    }
+        // initialize charge count
+        transferAmount = upgradeData.maxTransferAmount;
 
-    // Called by HUDManager when cooldown finishes
-    public void SpawnHandKnife()
-    {
+        // cache the knife’s normal scale
         if (handKnife != null)
-            handKnife.SetActive(true);
+        {
+            _knifeRestScale = handKnife.transform.localScale;
+            handKnife.SetActive(transferAmount > 0);
+        }
     }
 
-    private void Update()
+    void Update()
     {
-        ThrowableDetection td = FindFirstObjectByType<ThrowableDetection>();
+        var td = FindFirstObjectByType<ThrowableDetection>();
+
         if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
         {
             if (readyToThrow && transferAmount > 0)
             {
                 Throw();
             }
-            else if (td)
+            else if (td != null)
             {
-                Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
-                Destroy(td.gameObject);
-                ResetThrow();
+                TeleportToTransfer(td);
             }
         }
 
-        if (td && td.targetHit)
-        {
-            Transfer(td.transform.position, rb.linearVelocity, rb.angularVelocity);
-            Destroy(td.gameObject);
-            ResetThrow();
-        }
+        if (td != null && td.targetHit)
+            TeleportToTransfer(td);
     }
 
-    private void Transfer(Vector3 toPosition, Vector3 toLinearVelocity, Vector3 toAngularVelocity)
+    private void Throw()
     {
+        readyToThrow = false;
+        handKnife?.SetActive(false);    // hide in-hand knife
+
+        // spawn projectile
+        var proj = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
+        var rbProj = proj.GetComponent<Rigidbody>();
+        Vector3 dir = cam.forward;
+        if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
+            dir = (hit.point - attackPoint.position).normalized;
+
+        rbProj.AddForce(dir * throwForce + transform.up * throwUpwardForce, ForceMode.Impulse);
+    }
+
+    private void TeleportToTransfer(ThrowableDetection td)
+    {
+        // move player
         rb.isKinematic = true;
-        rb.position = toPosition;
-        playerMovement.gravityMultiplier = 0;
+        rb.position = td.transform.position;
+        playerMovement.gravityMultiplier = 0f;
         rb.isKinematic = false;
-        rb.linearVelocity = toLinearVelocity * 1.25f;
-        rb.angularVelocity = toAngularVelocity * 1.25f;
+        rb.linearVelocity = td.rb.linearVelocity * 1.25f;
+        rb.angularVelocity = td.rb.angularVelocity * 1.25f;
+
+        Destroy(td.gameObject);
+        ResetThrow();
+    }
+
+    private void ResetThrow()
+    {
+        transferAmount--;
+        readyToThrow = true;
+
+        if (transferAmount > 0)
+            SpawnHandKnife();
+    }
+
+    /// <summary>
+    /// Activates the handKnife and “prints” it by animating its Y-scale from 0→full.
+    /// </summary>
+    public void SpawnHandKnife()
+    {
+        if (handKnife == null || handKnife.activeSelf) return;
+
+        handKnife.SetActive(true);
+
+        // stop any ongoing print animation
+        if (_printCoroutine != null)
+            StopCoroutine(_printCoroutine);
+
+        // start from zero height
+        var t = handKnife.transform;
+        t.localScale = new Vector3(_knifeRestScale.x, 0f, _knifeRestScale.z);
+        _printCoroutine = StartCoroutine(PrintCoroutine());
+    }
+
+    private IEnumerator PrintCoroutine()
+    {
+        float elapsed = 0f;
+        var t = handKnife.transform;
+
+        while (elapsed < spawnDuration)
+        {
+            elapsed += Time.deltaTime;
+            float p = Mathf.SmoothStep(0f, 1f, elapsed / spawnDuration);
+            t.localScale = new Vector3(
+                _knifeRestScale.x,
+                Mathf.Lerp(0f, _knifeRestScale.y, p),
+                _knifeRestScale.z
+            );
+            yield return null;
+        }
+
+        // ensure exact final scale
+        t.localScale = _knifeRestScale;
+        _printCoroutine = null;
     }
 }
