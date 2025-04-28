@@ -1,5 +1,4 @@
-// TransferThrowable.cs
-using System.Net.NetworkInformation;
+using System.Collections;
 using UnityEngine;
 
 public class TransferThrowable : MonoBehaviour
@@ -8,113 +7,160 @@ public class TransferThrowable : MonoBehaviour
     public Transform cam;
     public Transform attackPoint;
     public GameObject objectToThrow;
-    [SerializeField] private GameObject handKnife;    // assign your in-hand knife here
     public UpgradeManagerUI upgradeManagerUI;
-    public ParticleSystem teleport;
+    public ParticleSystem teleport;                   // your VFX
+
+    [Tooltip("The knife model in the player's hand")]
+    [SerializeField] private GameObject handKnife;
 
     [Header("Throwing")]
-    [SerializeField] public KeyCode throwKey = KeyCode.Mouse1;
-    [SerializeField] public float throwForce;
-    [SerializeField] public float throwUpwardForce;
+    public KeyCode throwKey = KeyCode.Mouse1;
+    public float throwForce;
+    public float throwUpwardForce;
 
     [Header("Player")]
-    [SerializeField] PlayerUpgradeData upgradeData;
+    [SerializeField] private PlayerUpgradeData upgradeData;
     public int transferAmount { get; set; }
 
-    bool readyToThrow;
-    Rigidbody rb;
-    PlayerMovement playerMovement;
+    [Header("Print-In Animation")]
+    [Tooltip("How long the print-in takes")]
+    [SerializeField] private float spawnDuration = 0.3f;
 
-    private void Start()
+    private bool readyToThrow;
+    private Rigidbody rb;
+    private PlayerMovement playerMovement;
+
+    // cache the knife’s “ready” scale
+    private Vector3 _knifeRestScale;
+    private Coroutine _printCoroutine;
+
+    void Start()
     {
-        readyToThrow = true;
         rb = GetComponent<Rigidbody>();
         playerMovement = GetComponent<PlayerMovement>();
+        readyToThrow = true;
 
         transferAmount = upgradeData.maxTransferAmount;
 
-        // Initialize the hand-knife visibility
         if (handKnife != null)
+        {
+            _knifeRestScale = handKnife.transform.localScale;
             handKnife.SetActive(transferAmount > 0);
+        }
+    }
+
+    void Update()
+    {
+        var td = FindFirstObjectByType<ThrowableDetection>();
+
+        if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
+        {
+            if (readyToThrow && transferAmount > 0)
+                Throw();
+            else if (td != null)
+                TeleportToTransfer(td);
+        }
+
+        if (td != null && td.targetHit)
+            TeleportToTransfer(td);
     }
 
     private void Throw()
     {
         readyToThrow = false;
+        handKnife?.SetActive(false);
 
-        // Hide the knife in your hand
-        if (handKnife != null)
-            handKnife.SetActive(false);
-
-        // Spawn projectile
-        GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
-        projectile.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
-        projectile.transform.rotation *= Quaternion.Euler(90f, 0f, 0f);
-        projectile.transform.rotation *= Quaternion.Euler(0f, 90f, 0f);
-
-        Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
-
+        // figure out where we’re aiming
         Vector3 forceDir = cam.forward;
         if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
             forceDir = (hit.point - attackPoint.position).normalized;
 
-        Vector3 forceToAdd = forceDir * throwForce + transform.up * throwUpwardForce;
-        projectileRB.AddForce(forceToAdd, ForceMode.Impulse);
+        // create a rotation so the knife’s Nose (Z+) faces forceDir
+        Quaternion aimRot = Quaternion.LookRotation(forceDir, Vector3.up);
+
+        // now instantiate with that rotation
+        GameObject proj = Instantiate(objectToThrow, attackPoint.position, aimRot);
+
+        // if your model in the prefab is “lying flat” in Blender/FBX,
+        // you may need to tilt it so its blade points forward:
+        // proj.transform.Rotate(90f, 0f, 0f, Space.Self);
+
+        Rigidbody projRb = proj.GetComponent<Rigidbody>();
+
+        // constrain rolling if you only want spin around blade’s length
+        projRb.constraints =
+            RigidbodyConstraints.FreezeRotationX |
+            RigidbodyConstraints.FreezeRotationY;
+
+        // launch!
+        Vector3 impulse = forceDir * throwForce + transform.up * throwUpwardForce;
+        projRb.AddForce(impulse, ForceMode.Impulse);
     }
 
-    public void ResetThrow()
+
+    private void TeleportToTransfer(ThrowableDetection td)
+    {
+        // reposition
+        rb.isKinematic = true;
+        rb.position = td.transform.position;
+
+        // play VFX
+        teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        teleport.Play();
+
+        // restore physics & momentum
+        playerMovement.gravityMultiplier = 0f;
+        rb.isKinematic = false;
+        rb.linearVelocity = td.rb.linearVelocity * 1.25f;
+        rb.angularVelocity = td.rb.angularVelocity * 1.25f;
+
+        Destroy(td.gameObject);
+        ResetThrow();
+    }
+
+    private void ResetThrow()
     {
         transferAmount--;
         readyToThrow = true;
 
-        // if you still have knives left, immediately respawn the next one
         if (transferAmount > 0)
             SpawnHandKnife();
     }
 
-    // Called by HUDManager when cooldown finishes
     public void SpawnHandKnife()
     {
-        if (handKnife != null)
-            handKnife.SetActive(true);
+        if (handKnife == null || handKnife.activeSelf)
+            return;
+
+        handKnife.SetActive(true);
+
+        if (_printCoroutine != null)
+            StopCoroutine(_printCoroutine);
+
+        var t = handKnife.transform;
+        t.localScale = new Vector3(_knifeRestScale.x, 0f, _knifeRestScale.z);
+        _printCoroutine = StartCoroutine(PrintCoroutine());
     }
 
-    private void Update()
+    private IEnumerator PrintCoroutine()
     {
-        ThrowableDetection td = FindFirstObjectByType<ThrowableDetection>();
-        if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
+        float elapsed = 0f;
+        var t = handKnife.transform;
+
+        while (elapsed < spawnDuration)
         {
-            if (readyToThrow && transferAmount > 0)
-            {
-                Throw();
-            }
-            else if (td)
-            {
-                Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
-                Destroy(td.gameObject);
-                ResetThrow();
-            }
+            elapsed += Time.deltaTime;
+            float p = Mathf.SmoothStep(0f, 1f, elapsed / spawnDuration);
+            t.localScale = new Vector3(
+                _knifeRestScale.x,
+                Mathf.Lerp(0f, _knifeRestScale.y, p),
+                _knifeRestScale.z
+            );
+            yield return null;
         }
 
-        if (td && td.targetHit)
-        {
-            Transfer(td.transform.position, rb.linearVelocity, rb.angularVelocity);
-            Destroy(td.gameObject);
-            ResetThrow();
-        }
-    }
-
-    private void Transfer(Vector3 toPosition, Vector3 toLinearVelocity, Vector3 toAngularVelocity)
-    {
-        rb.isKinematic = true;
-        rb.position = toPosition;
-
-        teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); //playes teleport effect after being teleported
-        teleport.Play();
-
-        playerMovement.gravityMultiplier = 0;
-        rb.isKinematic = false;
-        rb.linearVelocity = toLinearVelocity * 1.25f;
-        rb.angularVelocity = toAngularVelocity * 1.25f;
+        // ensure exact final scale
+        t.localScale = _knifeRestScale;
+        _printCoroutine = null;
     }
 }
