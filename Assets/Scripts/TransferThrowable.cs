@@ -9,10 +9,6 @@ public class TransferThrowable : MonoBehaviour
     public GameObject objectToThrow;
     public UpgradeManagerUI upgradeManagerUI;
     public ParticleSystem teleport;                   // your VFX
-    
-    // [Header("Audio")]
-    // [SerializeField] private AudioSource throwAudioSource;
-    // [SerializeField] private AudioClip throwClip;
 
     [Tooltip("The knife model in the player's hand")]
     [SerializeField] private GameObject handKnife;
@@ -73,10 +69,6 @@ public class TransferThrowable : MonoBehaviour
     {
         readyToThrow = false;
         handKnife?.SetActive(false);
-        // if (throwAudioSource != null && throwClip != null)
-        // {
-        //     throwAudioSource.PlayOneShot(throwClip);
-        // }
         // figure out where we’re aiming
         Vector3 forceDir = cam.forward;
         if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
