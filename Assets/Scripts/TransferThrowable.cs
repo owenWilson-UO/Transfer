@@ -1,31 +1,29 @@
+// TransferThrowable.cs
 using System.Net.NetworkInformation;
 using UnityEngine;
 
 public class TransferThrowable : MonoBehaviour
 {
-    
     [Header("References")]
     public Transform cam;
     public Transform attackPoint;
     public GameObject objectToThrow;
+    [SerializeField] private GameObject handKnife;    // assign your in-hand knife here
     public UpgradeManagerUI upgradeManagerUI;
-
-
-    //[Header("Settings")]
+    public ParticleSystem teleport;
 
     [Header("Throwing")]
     [SerializeField] public KeyCode throwKey = KeyCode.Mouse1;
     [SerializeField] public float throwForce;
     [SerializeField] public float throwUpwardForce;
-    
+
     [Header("Player")]
     [SerializeField] PlayerUpgradeData upgradeData;
-    public int transferAmount {  get; set; } // public set because we impliment cooldown logic in the HUDManager script
+    public int transferAmount { get; set; }
 
     bool readyToThrow;
     Rigidbody rb;
     PlayerMovement playerMovement;
-    
 
     private void Start()
     {
@@ -33,43 +31,52 @@ public class TransferThrowable : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         playerMovement = GetComponent<PlayerMovement>();
 
+        transferAmount = upgradeData.maxTransferAmount;
 
-        transferAmount = upgradeData.maxTransferAmount; //start at 0 since we will have to get this item in the tutorial and then pickup stations will replenish to maxTransfers
+        // Initialize the hand-knife visibility
+        if (handKnife != null)
+            handKnife.SetActive(transferAmount > 0);
     }
 
-    private void Throw ()
+    private void Throw()
     {
         readyToThrow = false;
 
+        // Hide the knife in your hand
+        if (handKnife != null)
+            handKnife.SetActive(false);
+
+        // Spawn projectile
         GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
         projectile.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
-        Quaternion xTilt = Quaternion.Euler(90f, 0f, 0f);
-        projectile.transform.rotation = projectile.transform.rotation * xTilt;
-
-        Quaternion yTilt = Quaternion.Euler(0f, 90f, 0f);
-        projectile.transform.rotation = projectile.transform.rotation * yTilt;
+        projectile.transform.rotation *= Quaternion.Euler(90f, 0f, 0f);
+        projectile.transform.rotation *= Quaternion.Euler(0f, 90f, 0f);
 
         Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
 
-        Vector3 forceDir = cam.transform.forward;
-
-        RaycastHit hit;
-
-        //using a raycast to give the transfer a target to throw towards and add force to the transfer on instantiation
-        if (Physics.Raycast(cam.position, cam.forward, out hit, 500f))
-        {
+        Vector3 forceDir = cam.forward;
+        if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
             forceDir = (hit.point - attackPoint.position).normalized;
-        }
 
         Vector3 forceToAdd = forceDir * throwForce + transform.up * throwUpwardForce;
-
         projectileRB.AddForce(forceToAdd, ForceMode.Impulse);
     }
 
     public void ResetThrow()
     {
-        readyToThrow = true;
         transferAmount--;
+        readyToThrow = true;
+
+        // if you still have knives left, immediately respawn the next one
+        if (transferAmount > 0)
+            SpawnHandKnife();
+    }
+
+    // Called by HUDManager when cooldown finishes
+    public void SpawnHandKnife()
+    {
+        if (handKnife != null)
+            handKnife.SetActive(true);
     }
 
     private void Update()
@@ -81,18 +88,11 @@ public class TransferThrowable : MonoBehaviour
             {
                 Throw();
             }
-            else
+            else if (td)
             {
-                // If the user has thrown a Transfer but it hasn't collided with anything, teleport the user to the transfer
-                // along with the transfer's velocity
-
-                if (td)
-                {
-                    Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
-                    Destroy(td.gameObject);
-                    ResetThrow();
-                }
-                readyToThrow = true; //just in case something wierd happens
+                Transfer(td.transform.position, td.rb.linearVelocity, td.rb.angularVelocity);
+                Destroy(td.gameObject);
+                ResetThrow();
             }
         }
 
@@ -106,10 +106,12 @@ public class TransferThrowable : MonoBehaviour
 
     private void Transfer(Vector3 toPosition, Vector3 toLinearVelocity, Vector3 toAngularVelocity)
     {
-        //Logic for teleportation
-
         rb.isKinematic = true;
         rb.position = toPosition;
+
+        teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); //playes teleport effect after being teleported
+        teleport.Play();
+
         playerMovement.gravityMultiplier = 0;
         rb.isKinematic = false;
         rb.linearVelocity = toLinearVelocity * 1.25f;
