@@ -10,9 +10,9 @@ public class TransferThrowable : MonoBehaviour
     public UpgradeManagerUI upgradeManagerUI;
     public ParticleSystem teleport;                   // your VFX
     
-    [Header("Audio")]
-    [SerializeField] private AudioSource throwAudioSource;
-    [SerializeField] private AudioClip throwClip;
+    // [Header("Audio")]
+    // [SerializeField] private AudioSource throwAudioSource;
+    // [SerializeField] private AudioClip throwClip;
 
     [Tooltip("The knife model in the player's hand")]
     [SerializeField] private GameObject handKnife;
@@ -73,24 +73,24 @@ public class TransferThrowable : MonoBehaviour
     {
         readyToThrow = false;
         handKnife?.SetActive(false);
-        if (throwAudioSource != null && throwClip != null)
-        {
-            throwAudioSource.PlayOneShot(throwClip);
-        }
+        // if (throwAudioSource != null && throwClip != null)
+        // {
+        //     throwAudioSource.PlayOneShot(throwClip);
+        // }
         // figure out where we’re aiming
         Vector3 forceDir = cam.forward;
         if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
-            dir = (hit.point - attackPoint.position).normalized;
+            forceDir = (hit.point - attackPoint.position).normalized;
 
         // create a rotation that points the knife’s forward axis along dir:
-        Quaternion rot = Quaternion.LookRotation(dir, Vector3.up);
+        Quaternion rot = Quaternion.LookRotation(forceDir, Vector3.up);
 
         // if your knife model’s ‘blade’ is 90° off, tack on an extra Euler:
         // rot = rot * Quaternion.Euler(90f, 0f, 0f);
 
         var proj = Instantiate(objectToThrow, attackPoint.position, rot);
         var projRb = proj.GetComponent<Rigidbody>();
-        projRb.AddForce(dir * throwForce + transform.up * throwUpwardForce, ForceMode.Impulse);
+        projRb.AddForce(forceDir * throwForce + transform.up * throwUpwardForce, ForceMode.Impulse);
     }
 
 

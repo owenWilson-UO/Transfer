@@ -77,11 +77,11 @@ public class PlayerMovement : MonoBehaviour
     private Coroutine slowMoTimerCoroutine;
     private Coroutine slowMoCoolDownCoroutine;
 
-    [Header("Audio")]
-    [SerializeField] private AudioSource walkingAudioSource;
-    [SerializeField] private AudioClip walkingClip;
-    [SerializeField] private float footstepInterval = 0.5f; // time between footsteps
-    private float footstepTimer;
+    // [Header("Audio")]
+    // [SerializeField] private AudioSource walkingAudioSource;
+    // [SerializeField] private AudioClip walkingClip;
+    // [SerializeField] private float footstepInterval = 0.5f; // time between footsteps
+    // private float footstepTimer;
 
     Vector3 moveDir;
     Vector3 slopeMoveDir;
@@ -134,7 +134,7 @@ public class PlayerMovement : MonoBehaviour
         MoveInput();
         ControlDrag();
         ControlSpeed();
-        HandleWalkingSound();
+        // HandleWalkingSound();
 
 
         //Logic for slowing down time. Since we use unity's physics for everything,
@@ -232,27 +232,27 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     
-    private void HandleWalkingSound()
-    {
-        // Check if player is grounded, not sliding, and moving
-        bool isMoving = Mathf.Abs(horizontalMovement) > 0.1f || Mathf.Abs(verticalMovement) > 0.1f;
+    // private void HandleWalkingSound()
+    // {
+    //     // Check if player is grounded, not sliding, and moving
+    //     bool isMoving = Mathf.Abs(horizontalMovement) > 0.1f || Mathf.Abs(verticalMovement) > 0.1f;
         
-        if (isGrounded && isMoving && !isSliding)
-        {
-            footstepTimer += Time.deltaTime;
+    //     if (isGrounded && isMoving && !isSliding)
+    //     {
+    //         footstepTimer += Time.deltaTime;
             
-            if (footstepTimer >= footstepInterval)
-            {
-                walkingAudioSource.pitch = Random.Range(0.9f, 1.1f); // Small pitch variation
-                walkingAudioSource.PlayOneShot(walkingClip);
-                footstepTimer = 0f;
-            }
-        }
-        else
-        {
-            footstepTimer = footstepInterval; // Reset timer if not moving
-        }
-    }
+    //         if (footstepTimer >= footstepInterval)
+    //         {
+    //             walkingAudioSource.pitch = Random.Range(0.9f, 1.1f); // Small pitch variation
+    //             walkingAudioSource.PlayOneShot(walkingClip);
+    //             footstepTimer = 0f;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         footstepTimer = footstepInterval; // Reset timer if not moving
+    //     }
+    // }
 
     void Jump()
     {
