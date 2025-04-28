@@ -70,31 +70,20 @@ public class TransferThrowable : MonoBehaviour
         readyToThrow = false;
         handKnife?.SetActive(false);
 
-        // figure out where we’re aiming
-        Vector3 forceDir = cam.forward;
+        // figure out the throw direction
+        Vector3 dir = cam.forward;
         if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
-            forceDir = (hit.point - attackPoint.position).normalized;
+            dir = (hit.point - attackPoint.position).normalized;
 
-        // create a rotation so the knife’s Nose (Z+) faces forceDir
-        Quaternion aimRot = Quaternion.LookRotation(forceDir, Vector3.up);
+        // create a rotation that points the knife’s forward axis along dir:
+        Quaternion rot = Quaternion.LookRotation(dir, Vector3.up);
 
-        // now instantiate with that rotation
-        GameObject proj = Instantiate(objectToThrow, attackPoint.position, aimRot);
+        // if your knife model’s ‘blade’ is 90° off, tack on an extra Euler:
+        // rot = rot * Quaternion.Euler(90f, 0f, 0f);
 
-        // if your model in the prefab is “lying flat” in Blender/FBX,
-        // you may need to tilt it so its blade points forward:
-        // proj.transform.Rotate(90f, 0f, 0f, Space.Self);
-
-        Rigidbody projRb = proj.GetComponent<Rigidbody>();
-
-        // constrain rolling if you only want spin around blade’s length
-        projRb.constraints =
-            RigidbodyConstraints.FreezeRotationX |
-            RigidbodyConstraints.FreezeRotationY;
-
-        // launch!
-        Vector3 impulse = forceDir * throwForce + transform.up * throwUpwardForce;
-        projRb.AddForce(impulse, ForceMode.Impulse);
+        var proj = Instantiate(objectToThrow, attackPoint.position, rot);
+        var projRb = proj.GetComponent<Rigidbody>();
+        projRb.AddForce(dir * throwForce + transform.up * throwUpwardForce, ForceMode.Impulse);
     }
 
 

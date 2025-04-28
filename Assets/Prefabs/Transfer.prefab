@@ -151,3 +151,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57ace5bef90b94540b164c4e423d7c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spinSpeed: 1080
+  spinAxis: {x: 0, y: 0, z: 1}
+  initialRotationAxis: {x: 0, y: 1, z: 0}
