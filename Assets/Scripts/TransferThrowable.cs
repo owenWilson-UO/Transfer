@@ -8,6 +8,7 @@ public class TransferThrowable : MonoBehaviour
     public Transform attackPoint;
     public GameObject objectToThrow;
     public UpgradeManagerUI upgradeManagerUI;
+    public ParticleSystem teleport;
     [Tooltip("The knife model in the player's hand")]
     [SerializeField] private GameObject handKnife;
 
@@ -146,5 +147,23 @@ public class TransferThrowable : MonoBehaviour
         // ensure exact final scale
         t.localScale = _knifeRestScale;
         _printCoroutine = null;
+            Transfer(td.transform.position, rb.linearVelocity, rb.angularVelocity);
+            Destroy(td.gameObject);
+            ResetThrow();
+        }
+    }
+
+    private void Transfer(Vector3 toPosition, Vector3 toLinearVelocity, Vector3 toAngularVelocity)
+    {
+        rb.isKinematic = true;
+        rb.position = toPosition;
+
+        teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); //playes teleport effect after being teleported
+        teleport.Play();
+
+        playerMovement.gravityMultiplier = 0;
+        rb.isKinematic = false;
+        rb.linearVelocity = toLinearVelocity * 1.25f;
+        rb.angularVelocity = toAngularVelocity * 1.25f;
     }
 }
