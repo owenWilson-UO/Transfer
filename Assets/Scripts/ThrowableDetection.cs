@@ -2,9 +2,12 @@ using UnityEngine;
 
 public class ThrowableDetection : MonoBehaviour
 {
-    public Rigidbody rb {  get; private set; }
+    public Rigidbody rb { get; private set; }
+    public bool targetHit { get; private set; }
 
-    public bool targetHit {  get; private set; }
+    [SerializeField] private float spinSpeed = 1080f;
+    [Tooltip("Local axis to spin around (e.g. right=X, up=Y, forward=Z)")]
+    [SerializeField] private Vector3 spinAxis = Vector3.right;
 
     private bool isSpinning;
 
@@ -14,27 +17,25 @@ public class ThrowableDetection : MonoBehaviour
         isSpinning = true;
     }
 
-    private void Update()
+    void Update()
     {
         if (isSpinning)
         {
-            transform.Rotate(0f, 0f, 1080f * Time.deltaTime);
+            // rotate around the blade’s length axis in local space
+            transform.Rotate(spinAxis * spinSpeed * Time.deltaTime, Space.Self);
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        //logic for stopping the transfer when it collides with an object
-        if (collision.gameObject.CompareTag("Player")) { return; }
-        isSpinning = false;
-        if (targetHit)
-        {
+        if (collision.gameObject.CompareTag("Player"))
             return;
-        } 
-        else
-        {
-            targetHit = true;
-        }
+
+        if (targetHit) 
+            return;
+
+        targetHit = true;
+        isSpinning = false;
         rb.isKinematic = true;
     }
 }
