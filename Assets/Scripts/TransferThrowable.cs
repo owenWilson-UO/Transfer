@@ -10,6 +10,7 @@ public class TransferThrowable : MonoBehaviour
     public GameObject objectToThrow;
     [SerializeField] private GameObject handKnife;    // assign your in-hand knife here
     public UpgradeManagerUI upgradeManagerUI;
+    public ParticleSystem teleport;
 
     [Header("Throwing")]
     [SerializeField] public KeyCode throwKey = KeyCode.Mouse1;
@@ -107,6 +108,10 @@ public class TransferThrowable : MonoBehaviour
     {
         rb.isKinematic = true;
         rb.position = toPosition;
+
+        teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); //playes teleport effect after being teleported
+        teleport.Play();
+
         playerMovement.gravityMultiplier = 0;
         rb.isKinematic = false;
         rb.linearVelocity = toLinearVelocity * 1.25f;
