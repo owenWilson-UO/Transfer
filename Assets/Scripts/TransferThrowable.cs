@@ -9,6 +9,7 @@ public class TransferThrowable : MonoBehaviour
     public GameObject objectToThrow;
     public UpgradeManagerUI upgradeManagerUI;
     public ParticleSystem teleport;                   // your VFX
+    public ParticleSystem lightning;
 
     [Tooltip("The knife model in the player's hand")]
     [SerializeField] private GameObject handKnife;
@@ -62,7 +63,7 @@ public class TransferThrowable : MonoBehaviour
         }
 
         if (td != null && td.targetHit)
-            TeleportToTransfer(td);
+            TeleportToTransfer(td, true);
     }
 
     private void Throw()
@@ -86,10 +87,14 @@ public class TransferThrowable : MonoBehaviour
     }
 
 
-    private void TeleportToTransfer(ThrowableDetection td)
+    private void TeleportToTransfer(ThrowableDetection td, bool keepPlayerMomentum = false)
     {
-        // reposition
+        Vector3 playerLinearVelocity = rb.linearVelocity;
+        Vector3 playerAngularVelocity = rb.angularVelocity;
+
         rb.isKinematic = true;
+        
+        // reposition
         rb.position = td.transform.position;
 
         // play VFX
@@ -99,8 +104,8 @@ public class TransferThrowable : MonoBehaviour
         // restore physics & momentum
         playerMovement.gravityMultiplier = 0f;
         rb.isKinematic = false;
-        rb.linearVelocity = td.rb.linearVelocity * 1.25f;
-        rb.angularVelocity = td.rb.angularVelocity * 1.25f;
+        rb.linearVelocity = keepPlayerMomentum ? playerLinearVelocity : td.rb.linearVelocity * 1.25f;
+        rb.angularVelocity = keepPlayerMomentum ? playerAngularVelocity : td.rb.angularVelocity * 1.25f;
 
         Destroy(td.gameObject);
         ResetThrow();
@@ -133,7 +138,8 @@ public class TransferThrowable : MonoBehaviour
     private IEnumerator PrintCoroutine()
     {
         float elapsed = 0f;
-        var t = handKnife.transform;
+        Transform t = handKnife.transform;
+        lightning.Play();
 
         while (elapsed < spawnDuration)
         {
@@ -149,6 +155,7 @@ public class TransferThrowable : MonoBehaviour
 
         // ensure exact final scale
         t.localScale = _knifeRestScale;
+        lightning.Stop();
         _printCoroutine = null;
     }
 }

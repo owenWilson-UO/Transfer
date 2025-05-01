@@ -7,6 +7,12 @@ public class UpgradeManagerUI : MonoBehaviour
     [SerializeField] PlayerUpgradeData upgradeData;
     [SerializeField] PlayerMovement playerMovement;
 
+    [Header("Trees")]
+    [SerializeField] GameObject SlowMotion;
+    [SerializeField] GameObject Transfer;
+    [SerializeField] GameObject Psylink;
+    //[SerializeField] GameObject Ignition; NOT IMPLEMENTED YET
+
     [Header("Buttons")]
     [SerializeField] Button SMT2;
     [SerializeField] Button SMT3;
@@ -103,6 +109,10 @@ public class UpgradeManagerUI : MonoBehaviour
 
     private void Update()
     {
+        SlowMotion.SetActive(upgradeData.maxSlowMotionDuration > 0f);
+        Transfer.SetActive(upgradeData.maxTransferAmount > 0);
+        Psylink.SetActive(upgradeData.maxPsylinkAmount > 0);
+
         if (Input.GetKeyDown(upgradeMenuKey) && !playerMovement.isInSlowMotion)
         {
             //logic for opening the upgrade menu and closing it based on the key press

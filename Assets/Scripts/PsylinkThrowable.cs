@@ -34,7 +34,7 @@ public class PsylinkThrowable : MonoBehaviour
         //This is the logic for changing the crosshair when the player is looking
         //at a psyling interactable object (object with the PsylinkInteractable tag)
         RaycastHit hit;
-        psylinkInSight = Physics.Raycast(cam.position, cam.forward, out hit, 30f) && hit.transform.CompareTag("PsylinkInteractable") && !activePsylinks.Any(item => item.obj == hit.transform.gameObject) && !hit.transform.GetComponent<PsylinkInteractableObject>().isMoving;
+        psylinkInSight = Physics.Raycast(cam.position, cam.forward, out hit, 30f) && hit.transform.CompareTag("PsylinkInteractable") && !activePsylinks.Any(item => item.obj == hit.transform.gameObject) && !hit.transform.GetComponent<PsylinkInteractableObject>().isMoving && playerUpgradeData.maxPsylinkAmount > 0;
         if (psylinkInSight && readyToThrow)
         {
             dot.color = new(dot.color.r, dot.color.g, dot.color.b, 0f);

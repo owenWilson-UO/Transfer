@@ -138,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
         //Logic for slowing down time. Since we use unity's physics for everything,
         //we can simply change the global Time.timeScale to slow down time.
         //We do this here using a Coroutine to avoid a snappy change in and out of slow motion
-        if (Input.GetKeyDown(slowMotionKey) && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
+        if (upgradeData.maxSlowMotionDuration > 0f && Input.GetKeyDown(slowMotionKey) && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
         {
             if (!isInSlowMotion)
             {
