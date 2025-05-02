@@ -12,7 +12,7 @@ public class PlayerUpgradeData : ScriptableObject
     private void OnEnable()
     {
         maxSlowMotionDuration = 0f;
-        maxTransferAmount = 1;
+        maxTransferAmount = 0;
         maxPsylinkAmount = 0;
         Debug.Log("OnEnable");
     }
