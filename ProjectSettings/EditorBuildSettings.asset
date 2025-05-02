@@ -14,9 +14,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Owen/OwenScene.unity
     guid: dbfc5f8ee2c57464ab39ac0690323d18
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Will/SandboxLevel.unity
     guid: ea6d0d738c03e8f4c814766023510b59
+  - enabled: 1
+    path: Assets/Scenes/Owen/IntroSequence.unity
+    guid: d4adeba1a3c73d14aa6e25807a2acaf2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

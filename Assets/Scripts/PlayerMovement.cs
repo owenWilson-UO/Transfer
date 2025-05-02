@@ -77,6 +77,10 @@ public class PlayerMovement : MonoBehaviour
     private Coroutine slowMoTimerCoroutine;
     private Coroutine slowMoCoolDownCoroutine;
 
+    [Header("Fade In")]
+    [SerializeField] private Image fadeImage;
+    [SerializeField] private float fadeDuration;
+
     // [Header("Audio")]
     // [SerializeField] private AudioSource walkingAudioSource;
     // [SerializeField] private AudioClip walkingClip;
@@ -123,6 +127,8 @@ public class PlayerMovement : MonoBehaviour
         slideTimer = 0f;
 
         slowMotionDurationUsed = 0f;
+
+        StartCoroutine(FadeFromBlack());
     }
 
     private void Update()
@@ -414,6 +420,23 @@ public class PlayerMovement : MonoBehaviour
         slowMotionCoolingDown = false;
 
         slowMotionDurationUsed = 0f;
+    }
+
+    public IEnumerator FadeFromBlack()
+    {
+        Color color = fadeImage.color;
+        float time = 0f;
+
+        while (time < fadeDuration)
+        {
+            time += Time.deltaTime;
+            color.a = 1f - Mathf.Clamp01(time / fadeDuration);
+            fadeImage.color = color;
+            yield return null;
+        }
+
+        color.a = 0f;
+        fadeImage.color = color;
     }
 
     private void OnCollisionStay(Collision collision)
