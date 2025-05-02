@@ -24,8 +24,13 @@ public class AnimationStateController : MonoBehaviour
     [Tooltip("How quickly FOV transitions")]
     [SerializeField] private float fovLerpSpeed = 6f;
 
+     [Header("Slide‑Shrink Knife")]
+    [Tooltip("How quickly the knife scales in/out when sliding")]
+    [SerializeField] private float scaleLerpSpeed = 8f;
+
     // store the knife’s rest (initial) local rotation
     private Quaternion _knifeRestRot;
+    private Vector3 _knifeRestScale;
     private float _currentTargetFOV;
 
     void Start()
@@ -34,6 +39,7 @@ public class AnimationStateController : MonoBehaviour
 
         if (knifeTransform != null)
             _knifeRestRot = knifeTransform.localRotation;
+            _knifeRestScale = knifeTransform.localScale;
         
         if (playerCamera != null)
         {
@@ -87,6 +93,21 @@ public class AnimationStateController : MonoBehaviour
                 knifeTransform.localRotation,
                 targetRot,
                 Time.deltaTime * tiltSpeed
+            );
+        }
+
+         // — SLIDE‑SHRINK KNIFE SCALE —
+        if (knifeTransform != null)
+        {
+            // choose zero when sliding, rest scale otherwise
+            Vector3 targetScale = playerMovement.isSliding
+                ? Vector3.zero
+                : _knifeRestScale;
+
+            knifeTransform.localScale = Vector3.Lerp(
+                knifeTransform.localScale,
+                targetScale,
+                Time.deltaTime * scaleLerpSpeed
             );
         }
 
