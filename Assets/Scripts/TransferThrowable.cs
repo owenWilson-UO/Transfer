@@ -1,5 +1,10 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Rendering.Universal;
+using LensDistortion = UnityEngine.Rendering.Universal.LensDistortion;
+using Vignette = UnityEngine.Rendering.Universal.Vignette;
 
 public class TransferThrowable : MonoBehaviour
 {
@@ -27,6 +32,11 @@ public class TransferThrowable : MonoBehaviour
     [Tooltip("How long the print-in takes")]
     [SerializeField] private float spawnDuration = 0.3f;
 
+    [Header("Teleport Lens Warp")]
+    [SerializeField] private Volume volume;
+    private LensDistortion warp;
+    [SerializeField] private float warpDuration;
+
     private bool readyToThrow;
     private Rigidbody rb;
     private PlayerMovement playerMovement;
@@ -34,6 +44,7 @@ public class TransferThrowable : MonoBehaviour
     // cache the knife’s “ready” scale
     private Vector3 _knifeRestScale;
     private Coroutine _printCoroutine;
+    private Coroutine _warpCoroutine;
 
     void Start()
     {
@@ -47,6 +58,13 @@ public class TransferThrowable : MonoBehaviour
         {
             _knifeRestScale = handKnife.transform.localScale;
             handKnife.SetActive(transferAmount > 0);
+        }
+
+        if (volume != null && volume.profile.TryGet(out warp))
+        {
+            warp.intensity.overrideState = true;
+            warp.center.overrideState = true;
+            warp.scale.overrideState = true;
         }
     }
 
@@ -95,11 +113,23 @@ public class TransferThrowable : MonoBehaviour
         rb.isKinematic = true;
         
         // reposition
-        rb.position = td.transform.position;
+        if (keepPlayerMomentum)
+        {
+            rb.position = td.contactPoint.point + td.contactPoint.normal * 0.5f; //vertical offset to not have the player camera see out of bound when colliding with the roof
+        }
+        else
+        {
+            rb.position = td.transform.position;
+        }
 
         // play VFX
         teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         teleport.Play();
+        if (_warpCoroutine != null) { StopCoroutine(_warpCoroutine); }
+        if (warp)
+        {
+            _warpCoroutine = StartCoroutine(Warp());
+        }
 
         // restore physics & momentum
         playerMovement.gravityMultiplier = 0f;
@@ -157,5 +187,22 @@ public class TransferThrowable : MonoBehaviour
         t.localScale = _knifeRestScale;
         lightning.Stop();
         _printCoroutine = null;
+    }
+
+    private IEnumerator Warp()
+    {
+        float elapsed = 0f;
+        float warpIntensity = -1f;
+
+        while (elapsed < warpDuration)
+        {
+            warp.intensity.value = Mathf.SmoothStep(warpIntensity, 0f, elapsed / warpDuration);
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        warp.intensity.value = 0f;
+        _warpCoroutine = null;
     }
 }

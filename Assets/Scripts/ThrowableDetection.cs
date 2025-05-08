@@ -4,6 +4,7 @@ public class ThrowableDetection : MonoBehaviour
 {
     public Rigidbody rb { get; private set; }
     public bool targetHit { get; private set; }
+    public ContactPoint contactPoint { get; private set; }
 
     [SerializeField] private float spinSpeed = 1080f;
     [Tooltip("Local axis to spin around (e.g. right=X, up=Y, forward=Z)")]
@@ -42,6 +43,7 @@ public class ThrowableDetection : MonoBehaviour
         if (targetHit) 
             return;
 
+        contactPoint = collision.GetContact(0);
         targetHit = true;
         isSpinning = false;
         rb.isKinematic = true;
