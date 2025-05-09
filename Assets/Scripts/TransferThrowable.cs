@@ -112,6 +112,14 @@ public class TransferThrowable : MonoBehaviour
         var projRb = proj.GetComponent<Rigidbody>();
         projRb.AddForce(forceDir * throwForce + transform.up * throwUpwardForce,
                         ForceMode.Impulse);
+
+        // —— Trail setup ——
+        var trail = proj.GetComponent<TrailRenderer>();
+        if (trail != null)
+        {
+            trail.Clear();     // wipe any old segments
+            trail.emitting = true;  // start drawing
+        }                
     }
 
 
