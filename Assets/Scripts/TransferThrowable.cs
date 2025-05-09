@@ -88,21 +88,32 @@ public class TransferThrowable : MonoBehaviour
     {
         readyToThrow = false;
         handKnife?.SetActive(false);
-        // figure out where we’re aiming
-        Vector3 forceDir = cam.forward;
-        if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
-            forceDir = (hit.point - attackPoint.position).normalized;
 
-        // create a rotation that points the knife’s forward axis along dir:
+        // 1) Build a ray from the CENTER of the screen
+        Camera camComp = cam.GetComponent<Camera>();
+        Ray centerRay = camComp.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+        // 2) Figure out direction
+        Vector3 forceDir = cam.forward;              // fallback
+        if (Physics.Raycast(centerRay, out RaycastHit hit, 500f))
+        {
+            forceDir = (hit.point - centerRay.origin).normalized;
+        }
+
+        // 3) Choose spawn point = the ray origin + slight forward offset
+        float spawnOffset = 0.5f;  // half a meter in front of camera
+        Vector3 spawnPos = centerRay.origin + forceDir * spawnOffset;
+
+        // 4) Compute rotation
         Quaternion rot = Quaternion.LookRotation(forceDir, Vector3.up);
 
-        // if your knife model’s ‘blade’ is 90° off, tack on an extra Euler:
-        // rot = rot * Quaternion.Euler(90f, 0f, 0f);
-
-        var proj = Instantiate(objectToThrow, attackPoint.position, rot);
+        // 5) Instantiate and launch
+        var proj = Instantiate(objectToThrow, spawnPos, rot);
         var projRb = proj.GetComponent<Rigidbody>();
-        projRb.AddForce(forceDir * throwForce + transform.up * throwUpwardForce, ForceMode.Impulse);
+        projRb.AddForce(forceDir * throwForce + transform.up * throwUpwardForce,
+                        ForceMode.Impulse);
     }
+
 
 
     private void TeleportToTransfer(ThrowableDetection td, bool keepPlayerMomentum = false)
