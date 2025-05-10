@@ -7,21 +7,24 @@ public class DeathHandler : MonoBehaviour
 {
     private Image fadeImage;
     [SerializeField] private float fadeDuration = 1f;
+    private UpgradeManagerUI upgradeManagerUI;
 
     private void Start()
     {
         fadeImage = GameObject.Find("playerFade").GetComponent<Image>();
+        upgradeManagerUI = FindAnyObjectByType<UpgradeManagerUI>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            StartCoroutine(FadeToBlack());
+            upgradeManagerUI.canOpen = false;
+            StartCoroutine(FadeToBlack(fadeDuration));
         }
     }
 
-    public IEnumerator FadeToBlack()
+    public IEnumerator FadeToBlack(float fadeDuration)
     {
         Color color = fadeImage.color;
         float time = 0f;
@@ -36,23 +39,13 @@ public class DeathHandler : MonoBehaviour
 
         color.a = 1f;
         fadeImage.color = color;
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
     }
 
-    //public IEnumerator FadeFromBlack()
-    //{
-    //    Color color = fadeImage.color;
-    //    float time = 0f;
-
-    //    while (time < fadeDuration)
-    //    {
-    //        time += Time.deltaTime;
-    //        color.a = 1f - Mathf.Clamp01(time / fadeDuration);
-    //        fadeImage.color = color;
-    //        yield return null;
-    //    }
-
-    //    color.a = 0f;
-    //    fadeImage.color = color;
-    //}
+    public void Reload()
+    {
+        upgradeManagerUI.canOpen = false;
+        StartCoroutine(FadeToBlack(0f));
+    } 
 }

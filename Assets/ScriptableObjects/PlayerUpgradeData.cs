@@ -1,19 +1,41 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+public enum LevelName        // the selectable values
+{
+    Tutorial,
+    Level1,
+    Level2,
+    Level3
+}
 
 [CreateAssetMenu(fileName = "PlayerUpgradeData", menuName = "Scriptable Objects/PlayerUpgradeData")]
 public class PlayerUpgradeData : ScriptableObject
 {
+    public int batteries = 0;
+
     public float maxSlowMotionDuration = 0f;
     public int maxTransferAmount = 0;
     public int maxPsylinkAmount = 0;
 
+    public Dictionary<LevelName, int> batteriesCollectedByLevel;
+
 
     private void OnEnable()
     {
-        maxSlowMotionDuration = 0f;
-        maxTransferAmount = 0;
+        batteries = 0;
+
+        maxSlowMotionDuration = 1f;
+        maxTransferAmount = 1;
         maxPsylinkAmount = 0;
+        batteriesCollectedByLevel = new Dictionary<LevelName, int>
+        {
+            {LevelName.Tutorial, 0 },
+            {LevelName.Level1, 0 },
+            {LevelName.Level2, 0 },
+            {LevelName.Level3, 0 },
+        };
         Debug.Log("OnEnable");
     }
 }

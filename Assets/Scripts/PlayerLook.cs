@@ -4,6 +4,7 @@ public class PlayerLook : MonoBehaviour
 {
     [SerializeField] WallRun wallRun;
     [SerializeField] UpgradeManagerUI upgradeManagerUI;
+    [SerializeField] EndScreen endScreen;
 
     [Header("Mouse Movement")]
     [SerializeField] private float sensX;
@@ -35,7 +36,7 @@ public class PlayerLook : MonoBehaviour
 
     void MyInput()
     {
-        if (!upgradeManagerUI.isOpen)
+        if (!upgradeManagerUI.isOpen && !endScreen.isOpen)
         {
             mouseX = Input.GetAxisRaw("Mouse X");
             mouseY = Input.GetAxisRaw("Mouse Y");
