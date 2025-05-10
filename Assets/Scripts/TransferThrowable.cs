@@ -32,12 +32,16 @@ public class TransferThrowable : MonoBehaviour
     [Tooltip("How long the print-in takes")]
     [SerializeField] private float spawnDuration = 0.3f;
 
+    [Header("Animation")]
+    [SerializeField] private AnimationStateController animController;
+
     [Header("Teleport Lens Warp")]
     [SerializeField] private Volume volume;
     private LensDistortion warp;
     [SerializeField] private float warpDuration;
 
     private bool readyToThrow;
+    private bool isPreparingThrow;
     private Rigidbody rb;
     private PlayerMovement playerMovement;
 
@@ -51,7 +55,7 @@ public class TransferThrowable : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         playerMovement = GetComponent<PlayerMovement>();
         readyToThrow = true;
-
+        isPreparingThrow = false;
         transferAmount = upgradeData.maxTransferAmount;
 
         if (handKnife != null)
@@ -59,6 +63,9 @@ public class TransferThrowable : MonoBehaviour
             _knifeRestScale = handKnife.transform.localScale;
             handKnife.SetActive(transferAmount > 0);
         }
+
+        if (animController == null)
+            animController = GetComponent<AnimationStateController>();
 
         if (volume != null && volume.profile.TryGet(out warp))
         {
@@ -70,18 +77,38 @@ public class TransferThrowable : MonoBehaviour
 
     void Update()
     {
+        if (upgradeManagerUI.isOpen)
+            return;
+
         var td = FindFirstObjectByType<ThrowableDetection>();
 
-        if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
+        // 1) on press: windup
+        if (Input.GetKeyDown(throwKey) && readyToThrow && transferAmount > 0)
         {
-            if (readyToThrow && transferAmount > 0)
-                Throw();
-            else if (td != null)
-                TeleportToTransfer(td);
+            isPreparingThrow = true;
+            animController.PlayWindup();
         }
 
+        // 2) on release: throw
+        if (Input.GetKeyUp(throwKey) && isPreparingThrow)
+        {
+            isPreparingThrow = false;
+            animController.PlayThrow();
+            Throw();
+        }
+
+        // 3) After you’ve thrown (readyToThrow==false), a click can teleport if a knife exists
+        //    (or if td.targetHit is true—you keep your existing logic)
+        if (!readyToThrow && Input.GetKeyDown(throwKey) && td != null)
+        {
+            TeleportToTransfer(td);
+        }
+
+        // 4) Also handle the “auto‐teleport on hit” you already had:
         if (td != null && td.targetHit)
+        {
             TeleportToTransfer(td, true);
+        }
     }
 
     private void Throw()
@@ -122,7 +149,7 @@ public class TransferThrowable : MonoBehaviour
         }                
     }
 
-
+    
 
     private void TeleportToTransfer(ThrowableDetection td, bool keepPlayerMomentum = false)
     {

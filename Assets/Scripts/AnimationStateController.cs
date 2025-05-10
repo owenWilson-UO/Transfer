@@ -20,6 +20,12 @@ public class AnimationStateController : MonoBehaviour
     [SerializeField] private float scaleLerpSpeed = 8f;
     [SerializeField] private ParticleSystem lightning;   // assign your lightning VFX here
 
+    [Header("Throwing")]
+    [Tooltip("Must match your Animator Trigger parameter")]
+    [SerializeField] private string windupTrigger = "FP_Windup";
+    [SerializeField] private string throwTrigger  = "FP_Throw";
+    
+
     private Quaternion _knifeRestRot;
     private Vector3    _knifeRestScale;
     private float      _currentTargetFOV;
@@ -115,4 +121,13 @@ public class AnimationStateController : MonoBehaviour
             Time.deltaTime * fovLerpSpeed
         );
     }
-}}
+}
+    
+    public void PlayThrowAnim()
+    {
+        animator.SetTrigger(throwTrigger);
+    }
+
+    public void PlayWindup() => animator.SetTrigger(windupTrigger);
+    public void PlayThrow()   => animator.SetTrigger(throwTrigger);
+}
