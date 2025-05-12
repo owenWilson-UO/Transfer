@@ -39,7 +39,8 @@ public class EndScreen : MonoBehaviour
 
     private float timeSpeed = 10f;
 
-    public bool isOpen { get; private set; }
+    public bool levelComplete { get; private set; }
+    public bool animatiionDone { get; private set; } = false;
     void Start()
     {
         cg = GetComponent<CanvasGroup>();
@@ -55,7 +56,7 @@ public class EndScreen : MonoBehaviour
 
     private void Update()
     {
-        if (isOpen && timeToComplete > timer.currentTime)
+        if (animatiionDone && timeToComplete > timer.currentTime)
         {
 
             timeToComplete = timeToComplete - Time.unscaledDeltaTime * timeSpeed > timer.currentTime ? timeToComplete - Time.unscaledDeltaTime * timeSpeed : timer.currentTime;
@@ -69,6 +70,7 @@ public class EndScreen : MonoBehaviour
 
     public void StartEndScreen()
     {
+        levelComplete = true;
         fadeToEndScreen = StartCoroutine(OpenSequence());
     }
 
@@ -101,7 +103,7 @@ public class EndScreen : MonoBehaviour
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        isOpen = true;
+        animatiionDone = true;
 
         if (timer.currentTime > battery1)
         {

@@ -1,8 +1,10 @@
 using System.Collections;
+using System.Drawing;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 using LensDistortion = UnityEngine.Rendering.Universal.LensDistortion;
 using Vignette = UnityEngine.Rendering.Universal.Vignette;
 
@@ -39,6 +41,10 @@ public class TransferThrowable : MonoBehaviour
     [SerializeField] private Volume volume;
     private LensDistortion warp;
     [SerializeField] private float warpDuration;
+
+    [Header("Crosshair")]
+    [SerializeField] private RawImage outerCrossHair;
+    [SerializeField] private RawImage transferCrosshair;
 
     private bool readyToThrow;
     public bool isPreparingThrow { get; private set; }
@@ -88,6 +94,8 @@ public class TransferThrowable : MonoBehaviour
             isPreparingThrow = true;
             animController.PlayWindup();
         }
+
+        ChangeCrosshair();
 
         // 2) on release: throw
         if (Input.GetKeyUp(throwKey) && isPreparingThrow)
@@ -149,7 +157,21 @@ public class TransferThrowable : MonoBehaviour
         }                
     }
 
-    
+    private void ChangeCrosshair()
+    {
+        if (isPreparingThrow)
+        {
+            outerCrossHair.color = new(outerCrossHair.color.r, outerCrossHair.color.g, outerCrossHair.color.b, 0f);
+
+            transferCrosshair.color = new(transferCrosshair.color.r, transferCrosshair.color.g, transferCrosshair.color.b, 1f);
+        }
+        else
+        {
+            outerCrossHair.color = new(outerCrossHair.color.r, outerCrossHair.color.g, outerCrossHair.color.b, 1f);
+
+            transferCrosshair.color = new(transferCrosshair.color.r, transferCrosshair.color.g, transferCrosshair.color.b, 0f);
+        }
+    }
 
     private void TeleportToTransfer(ThrowableDetection td, bool keepPlayerMomentum = false)
     {

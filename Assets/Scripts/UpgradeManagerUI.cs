@@ -120,7 +120,7 @@ public class UpgradeManagerUI : MonoBehaviour
         Transfer.SetActive(upgradeData.maxTransferAmount > 0);
         Psylink.SetActive(upgradeData.maxPsylinkAmount > 0);
 
-        if (Input.GetKeyDown(upgradeMenuKey) && canOpen && !endScreen.isOpen && !playerMovement.isInSlowMotion && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
+        if (Input.GetKeyDown(upgradeMenuKey) && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
         {
             //logic for opening the upgrade menu and closing it based on the key press
             isOpen = !isOpen;
