@@ -8,6 +8,8 @@ public class AbilityPickup : MonoBehaviour
     [SerializeField] GameObject magicCircle;
     [SerializeField] TransferThrowable tt;
     [SerializeField] ParticleSystem lightning;
+    private AudioSource lightningAudio; // so sfx plays when we pick it up
+
 
     [Header("Settings")]
     [SerializeField] private float speed;
@@ -17,6 +19,7 @@ public class AbilityPickup : MonoBehaviour
     private void Start()
     {
         firstTimeGrabbed = playerUpgradeData.maxTransferAmount == 0;
+        lightningAudio = lightning.GetComponent<AudioSource>();
 
         if (!firstTimeGrabbed)
         {
@@ -46,6 +49,11 @@ public class AbilityPickup : MonoBehaviour
         float elapsed = 0f;
         float spawnDuration = 0.2f;
         lightning.Play();
+        if (lightningAudio != null)
+        {
+            lightningAudio.pitch = Random.Range(0.95f, 1.05f);
+            lightningAudio.Play();
+        }
         Vector3 _knifeRestScale = transform.localScale;
 
         while (elapsed < spawnDuration)

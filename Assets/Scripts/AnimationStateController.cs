@@ -20,6 +20,7 @@ public class AnimationStateController : MonoBehaviour
     [Header("Slide‑Shrink Knife")]
     [SerializeField] private float scaleLerpSpeed = 8f;
     [SerializeField] private ParticleSystem lightning;   // assign your lightning VFX here
+    private AudioSource lightningAudio;
 
     [Header("Throwing")]
     [Tooltip("Must match your Animator Trigger parameter")]
@@ -51,8 +52,12 @@ public class AnimationStateController : MonoBehaviour
         }
 
         _wasSliding = false;
-        if (lightning != null)
+        if (lightning != null){
             lightning.Stop();
+        }
+        if (lightning != null){
+            lightningAudio = lightning.GetComponent<AudioSource>();
+        }
     }
 
     void Update()
@@ -75,7 +80,13 @@ public class AnimationStateController : MonoBehaviour
 
     // play/stop lightning based on vfxSliding (not raw sliding)
     if (vfxSliding && !_wasSliding && !tt.isPreparingThrow)
+    {
         lightning?.Play();
+        if (lightningAudio != null){
+            lightningAudio.pitch = Random.Range(0.9f, 1.1f);
+            lightningAudio.Play();
+        }
+    }
     else if (!vfxSliding && _wasSliding)
         lightning?.Stop();
 

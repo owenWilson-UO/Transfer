@@ -81,11 +81,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Image fadeImage;
     [SerializeField] private float fadeDuration;
 
-    // [Header("Audio")]
-    // [SerializeField] private AudioSource walkingAudioSource;
-    // [SerializeField] private AudioClip walkingClip;
-    // [SerializeField] private float footstepInterval = 0.5f; // time between footsteps
-    // private float footstepTimer;
+    [Header("Audio")]
+    [SerializeField] private AudioSource walkingAudioSource;
+    [SerializeField] private AudioClip walkingClip;
+    [SerializeField] private float footstepInterval = 0.5f; // time between footsteps
+    private float footstepTimer;
 
     Vector3 moveDir;
     Vector3 slopeMoveDir;
@@ -116,6 +116,15 @@ public class PlayerMovement : MonoBehaviour
     
     private void Start()
     {
+        footstepTimer = 0f;
+
+        if (walkingAudioSource != null)
+        {
+            walkingAudioSource.clip = walkingClip;
+            walkingAudioSource.loop = false;
+            walkingAudioSource.playOnAwake = false;
+        }
+
         rb = GetComponent<Rigidbody>();
         capsule = rb.GetComponentInChildren<CapsuleCollider>();
 
@@ -202,6 +211,9 @@ public class PlayerMovement : MonoBehaviour
         
         slopeMoveDir = Vector3.ProjectOnPlane(moveDir, slopeHit.normal); 
         //using the RaycastHit from the OnSlope method, we can move on a slope (i.e. stairs smoothly with no wierd physics)
+
+        HandleFootstepAudio();
+
     }
 
     
@@ -469,5 +481,33 @@ public class PlayerMovement : MonoBehaviour
             : Color.red;
 
         Gizmos.DrawWireSphere(groundChekPosition.position, groundDistance);
+    } 
+
+    private void HandleFootstepAudio()
+    {
+        bool isWalking = (Mathf.Abs(horizontalMovement) > 0 || Mathf.Abs(verticalMovement) > 0);
+        bool canPlayFootstep = isGrounded && isWalking && !isSliding && !isCrouching;
+
+        if (canPlayFootstep)
+        {
+            footstepTimer += Time.deltaTime;
+
+            float interval = isSprinting ? footstepInterval * 0.6f : footstepInterval; // Faster when sprinting
+
+            if (footstepTimer >= interval)
+            {
+                footstepTimer = 0f;
+
+                if (walkingAudioSource != null)
+                {
+                    walkingAudioSource.pitch = Random.Range(0.95f, 1.05f);
+                    walkingAudioSource.Play();
+                }
+            }
+        }
+        else
+        {
+            footstepTimer = footstepInterval; // reset so first step after pause is quick
+        }
     }
 }
