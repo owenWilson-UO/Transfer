@@ -7,6 +7,8 @@ public class DeathHandler : MonoBehaviour
 {
     private Image fadeImage;
     [SerializeField] private float fadeDuration = 1f;
+    [SerializeField] private AbilityPickup transferPickup;
+    [SerializeField] PlayerUpgradeData playerUpgradeData;
     private UpgradeManagerUI upgradeManagerUI;
 
     private void Start()
@@ -17,8 +19,12 @@ public class DeathHandler : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Transfer"))
         {
+            if (transferPickup.firstTimeGrabbed && playerUpgradeData.maxTransferAmount == 1)
+            {
+                playerUpgradeData.maxTransferAmount = 0;
+            }
             upgradeManagerUI.canOpen = false;
             StartCoroutine(FadeToBlack(fadeDuration));
         }

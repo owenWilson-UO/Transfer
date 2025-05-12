@@ -37,7 +37,7 @@ public class EndScreen : MonoBehaviour
 
     private float timeToComplete;
 
-    private float timeSpeed = 5f;
+    private float timeSpeed = 10f;
 
     public bool isOpen { get; private set; }
     void Start()

@@ -146,26 +146,7 @@ public class PlayerMovement : MonoBehaviour
         //We do this here using a Coroutine to avoid a snappy change in and out of slow motion
         if (upgradeData.maxSlowMotionDuration > 0f && Input.GetKeyDown(slowMotionKey) && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
         {
-            if (!isInSlowMotion)
-            {
-                if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
-                if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
-
-                slowMoCoroutine = StartCoroutine(SmoothTimeScale(targetTimeScale, vignettePowerStart, vignettePowerDuringSloMotion));
-                slowMoTimerCoroutine = StartCoroutine(SlowMoTimer()); 
-                //This will automatically turn off the slow motion ability if the slowMotionKey is not pressed
-                //before the players current maxDuration time has passsed.
-                isInSlowMotion = true;
-            }
-            else
-            {
-                slowMotionCoolingDown = true;
-                if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
-                if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
-
-                slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
-                isInSlowMotion = false;
-            }
+            SlowMotion();
         }
 
         if (Input.GetKeyDown(jumpKey) && isGrounded && !upgradeManagerUI.isOpen)
@@ -240,6 +221,30 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.linearVelocity = new Vector3 (rb.linearVelocity.x, 0, rb.linearVelocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
+
+    public void SlowMotion()
+    {
+        if (!isInSlowMotion)
+        {
+            if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
+            if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
+
+            slowMoCoroutine = StartCoroutine(SmoothTimeScale(targetTimeScale, vignettePowerStart, vignettePowerDuringSloMotion));
+            slowMoTimerCoroutine = StartCoroutine(SlowMoTimer());
+            //This will automatically turn off the slow motion ability if the slowMotionKey is not pressed
+            //before the players current maxDuration time has passsed.
+            isInSlowMotion = true;
+        }
+        else
+        {
+            slowMotionCoolingDown = true;
+            if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
+            if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
+
+            slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
+            isInSlowMotion = false;
+        }
     }
 
     void ControlSpeed()

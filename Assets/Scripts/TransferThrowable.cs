@@ -41,7 +41,7 @@ public class TransferThrowable : MonoBehaviour
     [SerializeField] private float warpDuration;
 
     private bool readyToThrow;
-    private bool isPreparingThrow;
+    public bool isPreparingThrow { get; private set; }
     private Rigidbody rb;
     private PlayerMovement playerMovement;
 

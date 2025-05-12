@@ -4,6 +4,7 @@ public class AnimationStateController : MonoBehaviour
 {
     private Animator animator;
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private TransferThrowable tt;
 
     [Header("Knife Tilt")]
     [SerializeField] private Transform knifeTransform;
@@ -57,6 +58,7 @@ public class AnimationStateController : MonoBehaviour
     void Update()
     {
         // — ANIMATOR STATES —  
+        animator.SetBool("hasTransfer",    tt.transferAmount > 0);
         animator.SetBool("isWalking",      playerMovement.verticalMovement ==  1);
         animator.SetBool("isBackWalking",  playerMovement.verticalMovement == -1);
         animator.SetBool("isRightWalking", playerMovement.horizontalMovement ==  1);
@@ -72,7 +74,7 @@ public class AnimationStateController : MonoBehaviour
     animator.SetBool("isSliding", playerMovement.isSliding);
 
     // play/stop lightning based on vfxSliding (not raw sliding)
-    if (vfxSliding && !_wasSliding)
+    if (vfxSliding && !_wasSliding && !tt.isPreparingThrow)
         lightning?.Play();
     else if (!vfxSliding && _wasSliding)
         lightning?.Stop();
@@ -97,7 +99,7 @@ public class AnimationStateController : MonoBehaviour
     // — SLIDE‑SHRINK SCALE (unaffected) —
     if (knifeTransform != null)
     {
-        Vector3 targetScale = playerMovement.isSliding
+        Vector3 targetScale = playerMovement.isSliding && !tt.isPreparingThrow
             ? Vector3.zero
             : _knifeRestScale;
 

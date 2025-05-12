@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - PsylinkInteractable
   - Death
+  - NoWallRun
+  - Transfer
   layers:
   - Default
   - TransparentFX

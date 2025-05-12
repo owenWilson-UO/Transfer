@@ -22,15 +22,15 @@ public class Elevator : MonoBehaviour
     {
         if (!closed)
         {
-            doorLToPosition = doorL.position;
-            doorRToPosition = doorR.position;
-            doorL.position = new Vector3(doorL.position.x - 3, doorL.position.y, doorL.position.z);
-            doorR.position = new Vector3(doorR.position.x + 3, doorR.position.y, doorR.position.z);
+            doorLToPosition = doorL.localPosition;
+            doorRToPosition = doorR.localPosition;
+            doorL.localPosition = new Vector3(doorL.localPosition.x - 3, doorL.localPosition.y, doorL.localPosition.z);
+            doorR.localPosition = new Vector3(doorR.localPosition.x + 3, doorR.localPosition.y, doorR.localPosition.z);
         }
         else
         {
-            doorLToPosition = new Vector3(doorL.position.x - 3, doorL.position.y, doorL.position.z);
-            doorRToPosition = new Vector3(doorR.position.x + 3, doorR.position.y, doorR.position.z);
+            doorLToPosition = new Vector3(doorL.localPosition.x - 3, doorL.localPosition.y, doorL.localPosition.z);
+            doorRToPosition = new Vector3(doorR.localPosition.x + 3, doorR.localPosition.y, doorR.localPosition.z);
             if (startDoorMovement)
             {
                 openDoorsCoroutine = StartCoroutine(MoveDoors());
@@ -42,8 +42,8 @@ public class Elevator : MonoBehaviour
     {
         if (move)
         {
-            doorL.position = Vector3.MoveTowards(doorL.position, doorLToPosition, 2f * Time.deltaTime);
-            doorR.position = Vector3.MoveTowards(doorR.position, doorRToPosition, 2f * Time.deltaTime);
+            doorL.localPosition = Vector3.MoveTowards(doorL.localPosition, doorLToPosition, 2f * Time.deltaTime);
+            doorR.localPosition = Vector3.MoveTowards(doorR.localPosition, doorRToPosition, 2f * Time.deltaTime);
         }
         if (startDoorMovement && !move && openDoorsCoroutine == null)
         {

@@ -10,18 +10,31 @@ public class ManageTimer : MonoBehaviour
     [SerializeField] private EndScreen endScreen;
     [SerializeField] private Collider doorWall;
 
+    [Header("Close Door Only")]
+    [SerializeField] private bool closeDoorOnly;
+    [SerializeField] private ElevatorDropFloor drop;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (start)
+        if (closeDoorOnly)
         {
-            timer.StartTimer();
+            finishElevator.startDoorMovement = true;
+            doorWall.isTrigger = false;
+            drop.StartMove();
         }
         else
         {
-            timer.StopTimer();
-            finishElevator.startDoorMovement = true;
-            doorWall.isTrigger = false;
-            endScreen.StartEndScreen();
+            if (start)
+            {
+                timer.StartTimer();
+            }
+            else
+            {
+                timer.StopTimer();
+                finishElevator.startDoorMovement = true;
+                doorWall.isTrigger = false;
+                endScreen.StartEndScreen();
+            }
         }
     }
 }
