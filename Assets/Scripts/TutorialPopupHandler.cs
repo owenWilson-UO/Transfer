@@ -9,6 +9,7 @@ public class TutorialPopupHandler : MonoBehaviour
     [SerializeField] private CanvasGroup sprintJump;
     [SerializeField] private CanvasGroup slide;
     [SerializeField] private CanvasGroup wallrun;
+    [SerializeField] private CanvasGroup transfer;
 
     [Header("Seetings")]
     [SerializeField] private float fadeDuration;
@@ -58,6 +59,13 @@ public class TutorialPopupHandler : MonoBehaviour
                 {
                     tutorialState.showWallRunPopup = false;
                     toast = StartCoroutine(ToastCoroutine(wallrun));
+                }
+                break;
+            case "TransferPickup":
+                if (tutorialState.showTransferPopup)
+                {
+                    tutorialState.showTransferPopup = false;
+                    toast = StartCoroutine(ToastCoroutine(transfer));
                 }
                 break;
             default: break;

@@ -7,6 +7,7 @@ public class TutorialState : ScriptableObject
     public bool showSprintJumpPopup = true;
     public bool showSlidePopup = true;
     public bool showWallRunPopup = true;
+    public bool showTransferPopup = true;
 
     private void OnEnable()
     {
@@ -14,5 +15,6 @@ public class TutorialState : ScriptableObject
         showSprintJumpPopup = true;
         showSlidePopup = true;
         showWallRunPopup = true;
+        showTransferPopup = true;
     }
 }
