@@ -97,7 +97,7 @@ public class EndScreen : MonoBehaviour
         }
 
         cg.alpha = 1f;
-        dof.focalLength.value = 50f;
+        dof.focalLength.value = 100f;
         cg.interactable = true;
         cg.blocksRaycasts = true;
         Time.timeScale = 0f;

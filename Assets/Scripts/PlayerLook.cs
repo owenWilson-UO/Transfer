@@ -36,7 +36,7 @@ public class PlayerLook : MonoBehaviour
 
     void MyInput()
     {
-        if (!upgradeManagerUI.isOpen && !endScreen.animatiionDone)
+        if (!upgradeManagerUI.isOpen && !upgradeManagerUI.isPaused && !endScreen.animatiionDone)
         {
             mouseX = Input.GetAxisRaw("Mouse X");
             mouseY = Input.GetAxisRaw("Mouse Y");

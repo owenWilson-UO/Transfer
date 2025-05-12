@@ -22,8 +22,8 @@ public class ElevatorDropFloor : MonoBehaviour
         left_I = floorLeft.position;
         right_I = floorRight.position;
 
-        leftTo = new Vector3(left_I.x - 3, left_I.y, left_I.z);
-        rightTo = new Vector3(right_I.x + 3, right_I.y, right_I.z);
+        leftTo = new Vector3(left_I.x - 2.95f, left_I.y, left_I.z);
+        rightTo = new Vector3(right_I.x + 2.95f, right_I.y, right_I.z);
     }
 
     public void StartMove()

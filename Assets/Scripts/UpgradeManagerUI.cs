@@ -1,6 +1,8 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 public class UpgradeManagerUI : MonoBehaviour
@@ -37,11 +39,18 @@ public class UpgradeManagerUI : MonoBehaviour
     [Header("Canvas Groups")]
     CanvasGroup cg;
     [SerializeField] CanvasGroup playerCG;
+    [SerializeField] CanvasGroup pauseCG;
+
+    [Header("Pause")]
+    [SerializeField] private Volume volume;
+    private DepthOfField dof;
 
     [Header("KeyBinds")]
     [SerializeField] KeyCode upgradeMenuKey;
+    [SerializeField] KeyCode pauseKey;
 
     public bool isOpen { private set; get; }
+    public bool isPaused { private set; get; }
     public bool canOpen = true;
     private Coroutine fadeRoutine;
     private Animator upgradeAnimator;
@@ -111,7 +120,13 @@ public class UpgradeManagerUI : MonoBehaviour
         cg = GetComponent<CanvasGroup>();
         upgradeAnimator = GetComponent<Animator>();
         isOpen = false;
+        isPaused = false;
         canOpen = true;
+
+        if (volume != null && volume.profile.TryGet(out dof))
+        {
+            dof.focalLength.overrideState = true;
+        }
     }
 
     private void Update()
@@ -120,7 +135,7 @@ public class UpgradeManagerUI : MonoBehaviour
         Transfer.SetActive(upgradeData.maxTransferAmount > 0);
         Psylink.SetActive(upgradeData.maxPsylinkAmount > 0);
 
-        if (Input.GetKeyDown(upgradeMenuKey) && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
+        if (Input.GetKeyDown(upgradeMenuKey) && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isPaused && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
         {
             //logic for opening the upgrade menu and closing it based on the key press
             isOpen = !isOpen;
@@ -148,6 +163,21 @@ public class UpgradeManagerUI : MonoBehaviour
         {
             upgradeAnimator.Update(Time.unscaledDeltaTime);
             //Time.timeScale = 0f;
+        }
+
+        if (Input.GetKeyDown(pauseKey) && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isOpen)
+        {
+            isPaused = !isPaused;
+
+            playerCG.alpha = isPaused ? 0f : 1f;
+            Time.timeScale = isPaused ? 0f : 1f;
+            pauseCG.alpha = isPaused ? 1f : 0f;
+            pauseCG.blocksRaycasts = isPaused;
+            pauseCG.interactable = isPaused;
+            dof.focalLength.value = isPaused ? 100f : 0f;
+
+            Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = isPaused;
         }
 
         batteryCount.text = upgradeData.batteries.ToString();

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum LevelName        // the selectable values
+public enum LevelName
 {
     Tutorial,
     Level1,
