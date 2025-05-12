@@ -3,107 +3,133 @@ using UnityEngine;
 public class AnimationStateController : MonoBehaviour
 {
     private Animator animator;
-    
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private TransferThrowable tt;
 
     [Header("Knife Tilt")]
-    [Tooltip("Drag the Knife GameObject (child of Hand_R) here")]
     [SerializeField] private Transform knifeTransform;
-    [Tooltip("Local Euler tilt to apply when sprinting")]
     [SerializeField] private Vector3 sprintTiltEuler = new Vector3(10f, 0f, 0f);
-    [Tooltip("How quickly the knife blends into the tilt")]
     [SerializeField] private float tiltSpeed = 8f;
 
     [Header("Sprint FOV")]
-    [Tooltip("Your main camera here")]
     [SerializeField] private Camera playerCamera;
-    [Tooltip("FOV when walking / idle")]
     [SerializeField] private float baseFOV = 60f;
-    [Tooltip("FOV when sprinting")]
     [SerializeField] private float sprintFOV = 75f;
-    [Tooltip("How quickly FOV transitions")]
     [SerializeField] private float fovLerpSpeed = 6f;
 
-    // store the knife’s rest (initial) local rotation
+    [Header("Slide‑Shrink Knife")]
+    [SerializeField] private float scaleLerpSpeed = 8f;
+    [SerializeField] private ParticleSystem lightning;   // assign your lightning VFX here
+
+    [Header("Throwing")]
+    [Tooltip("Must match your Animator Trigger parameter")]
+    [SerializeField] private string windupTrigger = "FP_Windup";
+    [SerializeField] private string throwTrigger  = "FP_Throw";
+    
+
     private Quaternion _knifeRestRot;
-    private float _currentTargetFOV;
+    private Vector3    _knifeRestScale;
+    private float      _currentTargetFOV;
+
+    // track previous slide state
+    private bool _wasSliding;
 
     void Start()
     {
         animator = GetComponent<Animator>();
 
         if (knifeTransform != null)
-            _knifeRestRot = knifeTransform.localRotation;
-        
+        {
+            _knifeRestRot   = knifeTransform.localRotation;
+            _knifeRestScale = knifeTransform.localScale;
+        }
+
         if (playerCamera != null)
         {
-            // override baseFOV if you left it at 0
             baseFOV = playerCamera.fieldOfView;
             _currentTargetFOV = baseFOV;
         }
+
+        _wasSliding = false;
+        if (lightning != null)
+            lightning.Stop();
     }
 
     void Update()
     {
-        // Walking
-        if (playerMovement.verticalMovement == 1)      animator.SetBool("isWalking", true);
-        else                                           animator.SetBool("isWalking", false);
+        // — ANIMATOR STATES —  
+        animator.SetBool("hasTransfer",    tt.transferAmount > 0);
+        animator.SetBool("isWalking",      playerMovement.verticalMovement ==  1);
+        animator.SetBool("isBackWalking",  playerMovement.verticalMovement == -1);
+        animator.SetBool("isRightWalking", playerMovement.horizontalMovement ==  1);
+        animator.SetBool("isLeftWalking",  playerMovement.horizontalMovement == -1);
+        animator.SetBool("isSprinting",    playerMovement.isSprinting);
+        animator.SetBool("isCrouching",    playerMovement.isCrouching);
 
-        // Back Walk
-        if (playerMovement.verticalMovement == -1)     animator.SetBool("isBackWalking", true);
-        else                                           animator.SetBool("isBackWalking", false);
+        // — SLIDE STATE & LIGHTNING VFX (only if knife is active) —
+    bool hasKnife   = knifeTransform != null && knifeTransform.gameObject.activeSelf;
+    bool vfxSliding = playerMovement.isSliding && hasKnife;
 
-        // Right Walk
-        if (playerMovement.horizontalMovement == 1)    animator.SetBool("isRightWalking", true);
-        else                                           animator.SetBool("isRightWalking", false);
+    // still drive the raw “isSliding” animator param
+    animator.SetBool("isSliding", playerMovement.isSliding);
 
-        // Left Walk
-        if (playerMovement.horizontalMovement == -1)   animator.SetBool("isLeftWalking", true);
-        else                                           animator.SetBool("isLeftWalking", false);
+    // play/stop lightning based on vfxSliding (not raw sliding)
+    if (vfxSliding && !_wasSliding && !tt.isPreparingThrow)
+        lightning?.Play();
+    else if (!vfxSliding && _wasSliding)
+        lightning?.Stop();
 
-        // Sprint
-        if (playerMovement.isSprinting)                animator.SetBool("isSprinting", true);
-        else                                           animator.SetBool("isSprinting", false);
+    // remember for next frame
+    _wasSliding = vfxSliding;
 
-        // Sliding
-        if (playerMovement.isSliding)                  animator.SetBool("isSliding", true);
-        else                                           animator.SetBool("isSliding", false);
+    // — KNIFE TILT WHEN SPRINTING —
+    if (knifeTransform != null)
+    {
+        Quaternion targetRot = playerMovement.isSprinting
+            ? _knifeRestRot * Quaternion.Euler(sprintTiltEuler)
+            : _knifeRestRot;
 
-        // Crouching
-        if (playerMovement.isCrouching)                animator.SetBool("isCrouching", true);
-        else                                           animator.SetBool("isCrouching", false);
-
-        // Knife tilt logic
-        if (knifeTransform != null)
-        {
-            bool sprinting = playerMovement.isSprinting;
-            // Determine target rotation: rest or rest + tilt
-            Quaternion targetRot = sprinting
-                ? _knifeRestRot * Quaternion.Euler(sprintTiltEuler)
-                : _knifeRestRot;
-
-            // Smoothly interpolate towards target
-            knifeTransform.localRotation = Quaternion.Slerp(
-                knifeTransform.localRotation,
-                targetRot,
-                Time.deltaTime * tiltSpeed
-            );
-        }
-
-        // — FOV blend —
-        if (playerCamera != null)
-        {
-            // decide where we’re heading
-            _currentTargetFOV = playerMovement.isSprinting 
-                ? sprintFOV 
-                : baseFOV;
-
-            // smooth lerp
-            playerCamera.fieldOfView = Mathf.Lerp(
-                playerCamera.fieldOfView,
-                _currentTargetFOV,
-                Time.deltaTime * fovLerpSpeed
-            );
-        }
+        knifeTransform.localRotation = Quaternion.Slerp(
+            knifeTransform.localRotation,
+            targetRot,
+            Time.deltaTime * tiltSpeed
+        );
     }
+
+    // — SLIDE‑SHRINK SCALE (unaffected) —
+    if (knifeTransform != null)
+    {
+        Vector3 targetScale = playerMovement.isSliding && !tt.isPreparingThrow
+            ? Vector3.zero
+            : _knifeRestScale;
+
+        knifeTransform.localScale = Vector3.Lerp(
+            knifeTransform.localScale,
+            targetScale,
+            Time.deltaTime * scaleLerpSpeed
+        );
+    }
+
+    // — FOV BLEND ON SPRINT —
+    if (playerCamera != null)
+    {
+        _currentTargetFOV = playerMovement.isSprinting
+            ? sprintFOV
+            : baseFOV;
+
+        playerCamera.fieldOfView = Mathf.Lerp(
+            playerCamera.fieldOfView,
+            _currentTargetFOV,
+            Time.deltaTime * fovLerpSpeed
+        );
+    }
+}
+    
+    public void PlayThrowAnim()
+    {
+        animator.SetTrigger(throwTrigger);
+    }
+
+    public void PlayWindup() => animator.SetTrigger(windupTrigger);
+    public void PlayThrow()   => animator.SetTrigger(throwTrigger);
 }

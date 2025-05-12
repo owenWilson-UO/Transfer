@@ -77,11 +77,15 @@ public class PlayerMovement : MonoBehaviour
     private Coroutine slowMoTimerCoroutine;
     private Coroutine slowMoCoolDownCoroutine;
 
-    [Header("Audio")]
-    [SerializeField] private AudioSource walkingAudioSource;
-    [SerializeField] private AudioClip walkingClip;
-    [SerializeField] private float footstepInterval = 0.5f; // time between footsteps
-    private float footstepTimer;
+    [Header("Fade In")]
+    [SerializeField] private Image fadeImage;
+    [SerializeField] private float fadeDuration;
+
+    // [Header("Audio")]
+    // [SerializeField] private AudioSource walkingAudioSource;
+    // [SerializeField] private AudioClip walkingClip;
+    // [SerializeField] private float footstepInterval = 0.5f; // time between footsteps
+    // private float footstepTimer;
 
     Vector3 moveDir;
     Vector3 slopeMoveDir;
@@ -123,6 +127,8 @@ public class PlayerMovement : MonoBehaviour
         slideTimer = 0f;
 
         slowMotionDurationUsed = 0f;
+
+        StartCoroutine(FadeFromBlack());
     }
 
     private void Update()
@@ -134,34 +140,13 @@ public class PlayerMovement : MonoBehaviour
         MoveInput();
         ControlDrag();
         ControlSpeed();
-        HandleWalkingSound();
-
 
         //Logic for slowing down time. Since we use unity's physics for everything,
         //we can simply change the global Time.timeScale to slow down time.
         //We do this here using a Coroutine to avoid a snappy change in and out of slow motion
-        if (Input.GetKeyDown(slowMotionKey) && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
+        if (upgradeData.maxSlowMotionDuration > 0f && Input.GetKeyDown(slowMotionKey) && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
         {
-            if (!isInSlowMotion)
-            {
-                if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
-                if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
-
-                slowMoCoroutine = StartCoroutine(SmoothTimeScale(targetTimeScale, vignettePowerStart, vignettePowerDuringSloMotion));
-                slowMoTimerCoroutine = StartCoroutine(SlowMoTimer()); 
-                //This will automatically turn off the slow motion ability if the slowMotionKey is not pressed
-                //before the players current maxDuration time has passsed.
-                isInSlowMotion = true;
-            }
-            else
-            {
-                slowMotionCoolingDown = true;
-                if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
-                if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
-
-                slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
-                isInSlowMotion = false;
-            }
+            SlowMotion();
         }
 
         if (Input.GetKeyDown(jumpKey) && isGrounded && !upgradeManagerUI.isOpen)
@@ -231,33 +216,35 @@ public class PlayerMovement : MonoBehaviour
             moveDir = orientation.forward * verticalMovement + orientation.right * horizontalMovement;
         }
     }
-    
-    private void HandleWalkingSound()
-    {
-        // Check if player is grounded, not sliding, and moving
-        bool isMoving = Mathf.Abs(horizontalMovement) > 0.1f || Mathf.Abs(verticalMovement) > 0.1f;
-        
-        if (isGrounded && isMoving && !isSliding)
-        {
-            footstepTimer += Time.deltaTime;
-            
-            if (footstepTimer >= footstepInterval)
-            {
-                walkingAudioSource.pitch = Random.Range(0.9f, 1.1f); // Small pitch variation
-                walkingAudioSource.PlayOneShot(walkingClip);
-                footstepTimer = 0f;
-            }
-        }
-        else
-        {
-            footstepTimer = footstepInterval; // Reset timer if not moving
-        }
-    }
 
     void Jump()
     {
         rb.linearVelocity = new Vector3 (rb.linearVelocity.x, 0, rb.linearVelocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
+
+    public void SlowMotion()
+    {
+        if (!isInSlowMotion)
+        {
+            if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
+            if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
+
+            slowMoCoroutine = StartCoroutine(SmoothTimeScale(targetTimeScale, vignettePowerStart, vignettePowerDuringSloMotion));
+            slowMoTimerCoroutine = StartCoroutine(SlowMoTimer());
+            //This will automatically turn off the slow motion ability if the slowMotionKey is not pressed
+            //before the players current maxDuration time has passsed.
+            isInSlowMotion = true;
+        }
+        else
+        {
+            slowMotionCoolingDown = true;
+            if (slowMoCoroutine != null) StopCoroutine(slowMoCoroutine);
+            if (slowMoTimerCoroutine != null) StopCoroutine(slowMoTimerCoroutine);
+
+            slowMoCoroutine = StartCoroutine(SmoothTimeScale(1f, vignettePowerDuringSloMotion, vignettePowerStart));
+            isInSlowMotion = false;
+        }
     }
 
     void ControlSpeed()
@@ -438,6 +425,23 @@ public class PlayerMovement : MonoBehaviour
         slowMotionCoolingDown = false;
 
         slowMotionDurationUsed = 0f;
+    }
+
+    public IEnumerator FadeFromBlack()
+    {
+        Color color = fadeImage.color;
+        float time = 0f;
+
+        while (time < fadeDuration)
+        {
+            time += Time.deltaTime;
+            color.a = 1f - Mathf.Clamp01(time / fadeDuration);
+            fadeImage.color = color;
+            yield return null;
+        }
+
+        color.a = 0f;
+        fadeImage.color = color;
     }
 
     private void OnCollisionStay(Collision collision)

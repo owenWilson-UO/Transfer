@@ -12,6 +12,9 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI psylinkAmountText;
     [SerializeField] private TransferThrowable tt;
     [SerializeField] private PsylinkThrowable pt;
+    [SerializeField] private RectTransform slowMotionTimer;
+    [SerializeField] private RectTransform transferUI;
+    [SerializeField] private RectTransform psylinkUI;
 
     [Header("Cooldowns")]
     [SerializeField] private Image transferFillImage;
@@ -24,13 +27,19 @@ public class HUDManager : MonoBehaviour
 
     void Update()
     {
+        slowMotionTimer.localScale = playerUpgradeData.maxSlowMotionDuration == 0f ? Vector3.zero : new Vector3(1.4f, 1.38f, 1.5f);
+        transferUI.localScale = playerUpgradeData.maxTransferAmount == 0 ? Vector3.zero : new Vector3(0.65f, 0.65f, 0.65f);
+        psylinkUI.localScale = playerUpgradeData.maxPsylinkAmount == 0 ? Vector3.zero : new Vector3(0.65f, 0.65f, 0.65f);
+
         transferAmountText.text = tt.transferAmount.ToString();
         psylinkAmountText.text = (playerUpgradeData.maxPsylinkAmount - pt.activePsylinks.Count).ToString();
 
         transferTextImage.color = tt.transferAmount == 0 ? grey : blue; 
         
         if (tt.transferAmount < playerUpgradeData.maxTransferAmount && transferCoroutine == null)
+        {
             transferCoroutine = StartCoroutine(TransferCooldown());
+        }
     }
 
     IEnumerator TransferCooldown()

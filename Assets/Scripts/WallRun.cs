@@ -43,8 +43,8 @@ public class WallRun : MonoBehaviour
 
     void CheckWall()
     {
-        wallLeft = Physics.Raycast(transform.position + Vector3.up, -orientation.right, out leftWallHit, wallDistance);
-        wallRight = Physics.Raycast(transform.position + Vector3.up, orientation.right, out rightWallHit, wallDistance);
+        wallLeft = Physics.Raycast(transform.position + Vector3.up, -orientation.right, out leftWallHit, wallDistance) && !leftWallHit.collider.CompareTag("NoWallRun");
+        wallRight = Physics.Raycast(transform.position + Vector3.up, orientation.right, out rightWallHit, wallDistance) && !rightWallHit.collider.CompareTag("NoWallRun");
         //these raycasts check if the player has a wall on its respective side in order to allow the player to wall run if in the air.
 
         Debug.DrawRay(transform.position + Vector3.up, -orientation.right * wallDistance, Color.red);

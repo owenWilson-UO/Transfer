@@ -1,5 +1,10 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Rendering.Universal;
+using LensDistortion = UnityEngine.Rendering.Universal.LensDistortion;
+using Vignette = UnityEngine.Rendering.Universal.Vignette;
 
 public class TransferThrowable : MonoBehaviour
 {
@@ -9,10 +14,7 @@ public class TransferThrowable : MonoBehaviour
     public GameObject objectToThrow;
     public UpgradeManagerUI upgradeManagerUI;
     public ParticleSystem teleport;                   // your VFX
-    
-    [Header("Audio")]
-    [SerializeField] private AudioSource throwAudioSource;
-    [SerializeField] private AudioClip throwClip;
+    public ParticleSystem lightning;
 
     [Tooltip("The knife model in the player's hand")]
     [SerializeField] private GameObject handKnife;
@@ -30,20 +32,30 @@ public class TransferThrowable : MonoBehaviour
     [Tooltip("How long the print-in takes")]
     [SerializeField] private float spawnDuration = 0.3f;
 
+    [Header("Animation")]
+    [SerializeField] private AnimationStateController animController;
+
+    [Header("Teleport Lens Warp")]
+    [SerializeField] private Volume volume;
+    private LensDistortion warp;
+    [SerializeField] private float warpDuration;
+
     private bool readyToThrow;
+    public bool isPreparingThrow { get; private set; }
     private Rigidbody rb;
     private PlayerMovement playerMovement;
 
     // cache the knife’s “ready” scale
     private Vector3 _knifeRestScale;
     private Coroutine _printCoroutine;
+    private Coroutine _warpCoroutine;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         playerMovement = GetComponent<PlayerMovement>();
         readyToThrow = true;
-
+        isPreparingThrow = false;
         transferAmount = upgradeData.maxTransferAmount;
 
         if (handKnife != null)
@@ -51,75 +63,125 @@ public class TransferThrowable : MonoBehaviour
             _knifeRestScale = handKnife.transform.localScale;
             handKnife.SetActive(transferAmount > 0);
         }
+
+        if (animController == null)
+            animController = GetComponent<AnimationStateController>();
+
+        if (volume != null && volume.profile.TryGet(out warp))
+        {
+            warp.intensity.overrideState = true;
+            warp.center.overrideState = true;
+            warp.scale.overrideState = true;
+        }
     }
 
     void Update()
     {
+        if (upgradeManagerUI.isOpen)
+            return;
+
         var td = FindFirstObjectByType<ThrowableDetection>();
 
-        if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
+        // 1) on press: windup
+        if (Input.GetKeyDown(throwKey) && readyToThrow && transferAmount > 0)
         {
-            if (readyToThrow && transferAmount > 0)
-                Throw();
-            else if (td != null)
-                TeleportToTransfer(td);
+            isPreparingThrow = true;
+            animController.PlayWindup();
         }
 
-        if (td != null && td.targetHit)
+        // 2) on release: throw
+        if (Input.GetKeyUp(throwKey) && isPreparingThrow)
+        {
+            isPreparingThrow = false;
+            animController.PlayThrow();
+            Throw();
+        }
+
+        // 3) After you’ve thrown (readyToThrow==false), a click can teleport if a knife exists
+        //    (or if td.targetHit is true—you keep your existing logic)
+        if (!readyToThrow && Input.GetKeyDown(throwKey) && td != null)
+        {
             TeleportToTransfer(td);
+        }
+
+        // 4) Also handle the “auto‐teleport on hit” you already had:
+        if (td != null && td.targetHit)
+        {
+            TeleportToTransfer(td, true);
+        }
     }
 
     private void Throw()
     {
         readyToThrow = false;
         handKnife?.SetActive(false);
-        if (throwAudioSource != null && throwClip != null)
+
+        // 1) Build a ray from the CENTER of the screen
+        Camera camComp = cam.GetComponent<Camera>();
+        Ray centerRay = camComp.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+        // 2) Figure out direction
+        Vector3 forceDir = cam.forward;              // fallback
+        if (Physics.Raycast(centerRay, out RaycastHit hit, 500f))
         {
-            throwAudioSource.PlayOneShot(throwClip);
+            forceDir = (hit.point - centerRay.origin).normalized;
         }
-        // figure out where we’re aiming
-        Vector3 forceDir = cam.forward;
-        if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 500f))
-            forceDir = (hit.point - attackPoint.position).normalized;
 
-        // create a rotation so the knife’s Nose (Z+) faces forceDir
-        Quaternion aimRot = Quaternion.LookRotation(forceDir, Vector3.up);
+        // 3) Choose spawn point = the ray origin + slight forward offset
+        float spawnOffset = 0.5f;  // half a meter in front of camera
+        Vector3 spawnPos = centerRay.origin + forceDir * spawnOffset;
 
-        // now instantiate with that rotation
-        GameObject proj = Instantiate(objectToThrow, attackPoint.position, aimRot);
+        // 4) Compute rotation
+        Quaternion rot = Quaternion.LookRotation(forceDir, Vector3.up);
 
-        // if your model in the prefab is “lying flat” in Blender/FBX,
-        // you may need to tilt it so its blade points forward:
-        // proj.transform.Rotate(90f, 0f, 0f, Space.Self);
+        // 5) Instantiate and launch
+        var proj = Instantiate(objectToThrow, spawnPos, rot);
+        var projRb = proj.GetComponent<Rigidbody>();
+        projRb.AddForce(forceDir * throwForce + transform.up * throwUpwardForce,
+                        ForceMode.Impulse);
 
-        Rigidbody projRb = proj.GetComponent<Rigidbody>();
-
-        // constrain rolling if you only want spin around blade’s length
-        projRb.constraints =
-            RigidbodyConstraints.FreezeRotationX |
-            RigidbodyConstraints.FreezeRotationY;
-
-        // launch!
-        Vector3 impulse = forceDir * throwForce + transform.up * throwUpwardForce;
-        projRb.AddForce(impulse, ForceMode.Impulse);
+        // —— Trail setup ——
+        var trail = proj.GetComponent<TrailRenderer>();
+        if (trail != null)
+        {
+            trail.Clear();     // wipe any old segments
+            trail.emitting = true;  // start drawing
+        }                
     }
 
+    
 
-    private void TeleportToTransfer(ThrowableDetection td)
+    private void TeleportToTransfer(ThrowableDetection td, bool keepPlayerMomentum = false)
     {
-        // reposition
+        Vector3 playerLinearVelocity = rb.linearVelocity;
+        Vector3 playerAngularVelocity = rb.angularVelocity;
+
         rb.isKinematic = true;
-        rb.position = td.transform.position;
+        
+        // reposition
+        if (keepPlayerMomentum)
+        {
+            rb.position = td.contactPoint.point + td.contactPoint.normal * 0.5f; //vertical offset to not have the player camera see out of bound when colliding with the roof
+        }
+        else
+        {
+            rb.position = td.transform.position;
+        }
 
         // play VFX
         teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         teleport.Play();
+        if (_warpCoroutine != null) { StopCoroutine(_warpCoroutine); }
+        if (warp)
+        {
+            _warpCoroutine = StartCoroutine(Warp());
+        }
 
         // restore physics & momentum
         playerMovement.gravityMultiplier = 0f;
         rb.isKinematic = false;
-        rb.linearVelocity = td.rb.linearVelocity * 1.25f;
-        rb.angularVelocity = td.rb.angularVelocity * 1.25f;
+        rb.linearVelocity = keepPlayerMomentum ? playerLinearVelocity : td.rb.linearVelocity * 1.25f;
+        rb.angularVelocity = keepPlayerMomentum ? playerAngularVelocity : td.rb.angularVelocity * 1.25f;
 
         Destroy(td.gameObject);
         ResetThrow();
@@ -152,7 +214,8 @@ public class TransferThrowable : MonoBehaviour
     private IEnumerator PrintCoroutine()
     {
         float elapsed = 0f;
-        var t = handKnife.transform;
+        Transform t = handKnife.transform;
+        lightning.Play();
 
         while (elapsed < spawnDuration)
         {
@@ -168,6 +231,24 @@ public class TransferThrowable : MonoBehaviour
 
         // ensure exact final scale
         t.localScale = _knifeRestScale;
+        lightning.Stop();
         _printCoroutine = null;
+    }
+
+    private IEnumerator Warp()
+    {
+        float elapsed = 0f;
+        float warpIntensity = -1f;
+
+        while (elapsed < warpDuration)
+        {
+            warp.intensity.value = Mathf.SmoothStep(warpIntensity, 0f, elapsed / warpDuration);
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        warp.intensity.value = 0f;
+        _warpCoroutine = null;
     }
 }

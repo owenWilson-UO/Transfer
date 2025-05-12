@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,16 @@ public class UpgradeManagerUI : MonoBehaviour
 {
     [SerializeField] PlayerUpgradeData upgradeData;
     [SerializeField] PlayerMovement playerMovement;
+    [SerializeField] EndScreen endScreen;
+
+    [Header("Text Fields")]
+    [SerializeField] private TextMeshProUGUI batteryCount;
+
+    [Header("Trees")]
+    [SerializeField] GameObject SlowMotion;
+    [SerializeField] GameObject Transfer;
+    [SerializeField] GameObject Psylink;
+    //[SerializeField] GameObject Ignition; NOT IMPLEMENTED YET
 
     [Header("Buttons")]
     [SerializeField] Button SMT2;
@@ -31,6 +42,7 @@ public class UpgradeManagerUI : MonoBehaviour
     [SerializeField] KeyCode upgradeMenuKey;
 
     public bool isOpen { private set; get; }
+    public bool canOpen = true;
     private Coroutine fadeRoutine;
     private Animator upgradeAnimator;
 
@@ -99,11 +111,16 @@ public class UpgradeManagerUI : MonoBehaviour
         cg = GetComponent<CanvasGroup>();
         upgradeAnimator = GetComponent<Animator>();
         isOpen = false;
+        canOpen = true;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(upgradeMenuKey) && !playerMovement.isInSlowMotion)
+        SlowMotion.SetActive(upgradeData.maxSlowMotionDuration > 0f);
+        Transfer.SetActive(upgradeData.maxTransferAmount > 0);
+        Psylink.SetActive(upgradeData.maxPsylinkAmount > 0);
+
+        if (Input.GetKeyDown(upgradeMenuKey) && canOpen && !endScreen.isOpen && !playerMovement.isInSlowMotion && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
         {
             //logic for opening the upgrade menu and closing it based on the key press
             isOpen = !isOpen;
@@ -132,6 +149,8 @@ public class UpgradeManagerUI : MonoBehaviour
             upgradeAnimator.Update(Time.unscaledDeltaTime);
             //Time.timeScale = 0f;
         }
+
+        batteryCount.text = upgradeData.batteries.ToString();
         
     }
 
@@ -140,18 +159,23 @@ public class UpgradeManagerUI : MonoBehaviour
     #region Slow Motion Upgrades
     public void OnSlowMotionTier2Press()
     {
-        upgradeData.maxSlowMotionDuration = 2f;
-        SMT2.interactable = false;
-        SM12.color = blue;
+        if (upgradeData.batteries >= 1)
+        {
+            upgradeData.maxSlowMotionDuration = 2f;
+            SMT2.interactable = false;
+            SM12.color = blue;
+            upgradeData.batteries--;
+        }
     }
 
     public void OnSlowMotionTier3Press()
     {
-        if (upgradeData.maxSlowMotionDuration == 2f)
+        if (upgradeData.maxSlowMotionDuration == 2f && upgradeData.batteries >= 2)
         {
             upgradeData.maxSlowMotionDuration = 3f;
             SMT3.interactable = false;
             SM23.color = blue;
+            upgradeData.batteries-=2;
         }
     }
     #endregion
@@ -159,18 +183,25 @@ public class UpgradeManagerUI : MonoBehaviour
     #region Transfer Upgrades
     public void OnTransferTier2Press()
     {
-        upgradeData.maxTransferAmount = 2;
-        TT2.interactable = false;
-        T12.color = blue;
+        if (upgradeData.batteries >= 1)
+        {
+            upgradeData.maxTransferAmount = 2;
+            TT2.interactable = false;
+            T12.color = blue;
+
+            upgradeData.batteries--;
+        }
     }
 
     public void OnTransferTier3Press()
     {
-        if (upgradeData.maxTransferAmount == 2)
+        if (upgradeData.maxTransferAmount == 2 && upgradeData.batteries >= 2)
         {
             upgradeData.maxTransferAmount = 3;
             TT3.interactable = false;
             T23.color = blue;
+
+            upgradeData.batteries-=2;
         }
     }
     #endregion
@@ -178,29 +209,33 @@ public class UpgradeManagerUI : MonoBehaviour
     #region Psylink Upgrades
     public void OnPsylinkTier2Press()
     {
-        upgradeData.maxPsylinkAmount = 2;
-        P2.interactable = false;
-        P12.color = blue;
+        if (upgradeData.batteries >= 1)
+        {
+            upgradeData.maxPsylinkAmount = 2;
+            P2.interactable = false;
+            P12.color = blue;
+
+            upgradeData.batteries--;
+        }
     }
 
     public void OnPsylinkTier3Press()
     {
-        if (upgradeData.maxPsylinkAmount == 2)
+        if (upgradeData.maxPsylinkAmount == 2 && upgradeData.batteries >= 2)
         {
             upgradeData.maxPsylinkAmount = 3;
             P3.interactable = false;
             P23.color = blue;
+
+            upgradeData.batteries-=2;
         }
     }
     #endregion
 
-    IEnumerator FadeUI(bool opening)
+    public IEnumerator FadeUI(bool opening)
     {
         float t = 0f;
         float duration = 0.1f;
-
-        float startAlphaCG = cg.alpha;
-        float targetAlphaCG = opening ? 1f : 0f;
 
         float startAlphaPlayer = playerCG.alpha;
         float targetAlphaPlayer = opening ? 0f : 1f;
