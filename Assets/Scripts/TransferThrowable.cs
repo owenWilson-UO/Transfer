@@ -50,6 +50,10 @@ public class TransferThrowable : MonoBehaviour
     public bool isPreparingThrow { get; private set; }
     private Rigidbody rb;
     private PlayerMovement playerMovement;
+    
+    // Instant Transmission sfx
+    private AudioSource teleportAudio;
+
 
     // cache the knife’s “ready” scale
     private Vector3 _knifeRestScale;
@@ -63,7 +67,10 @@ public class TransferThrowable : MonoBehaviour
         readyToThrow = true;
         isPreparingThrow = false;
         transferAmount = upgradeData.maxTransferAmount;
-
+        if (teleport != null)
+        {
+            teleportAudio = teleport.GetComponent<AudioSource>();
+        }
         if (handKnife != null)
         {
             _knifeRestScale = handKnife.transform.localScale;
@@ -193,6 +200,13 @@ public class TransferThrowable : MonoBehaviour
         // play VFX
         teleport.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         teleport.Play();
+        
+        // SFX for the teleport VFX
+        if (teleportAudio != null)
+        {
+            teleportAudio.Play();
+        }
+
         if (_warpCoroutine != null) { StopCoroutine(_warpCoroutine); }
         if (warp)
         {
