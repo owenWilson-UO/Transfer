@@ -27,6 +27,11 @@ public class EndScreen : MonoBehaviour
     [SerializeField] private Image batteryImage2;
     [SerializeField] private Image batteryImage3;
 
+    [Header("Betteries Collected Messages")]
+    [SerializeField] private TextMeshProUGUI batteriesCollected;
+    [SerializeField] private TextMeshProUGUI batteryMessage;
+    [SerializeField] private TextMeshProUGUI nextBatteryTime;
+
     private DepthOfField dof;
     private CanvasGroup cg;
     private Coroutine fadeToEndScreen;
@@ -34,6 +39,10 @@ public class EndScreen : MonoBehaviour
     private Coroutine batCoroutine1;
     private Coroutine batCoroutine2;
     private Coroutine batCoroutine3;
+
+    private Coroutine batteriesCollectedCoroutine;
+    private Coroutine batteryMessageCoroutine;
+    private Coroutine nextBatteryTimeCoroutine;
 
     private float timeToComplete;
 
@@ -65,6 +74,35 @@ public class EndScreen : MonoBehaviour
             if (timeToComplete < battery1 && batCoroutine1 == null) { batCoroutine1 = StartCoroutine(IncreaseScale(batteryImage1)); }
             if (timeToComplete < battery2 && batCoroutine2 == null) { batCoroutine2 = StartCoroutine(IncreaseScale(batteryImage2)); }
             if (timeToComplete < battery3 && batCoroutine3 == null) { batCoroutine3 = StartCoroutine(IncreaseScale(batteryImage3)); }
+        }
+        else if (timeToComplete <= timer.currentTime)
+        {
+            int numberOfBatteriesCollected = playerUpgradeData.batteriesCollectedByLevel[LevelName.Tutorial];
+            if (numberOfBatteriesCollected == 3 && batteriesCollectedCoroutine == null)
+            {
+                batteriesCollectedCoroutine = StartCoroutine(IncreaseScale(batteriesCollected));
+            }
+            else
+            {
+                switch (numberOfBatteriesCollected)
+                {
+                    case 0:
+                        nextBatteryTime.text = battery1.ToString("0.00");
+                        break;
+                    case 1:
+                        nextBatteryTime.text = battery2.ToString("0.00");
+                        break;
+                    case 2:
+                        nextBatteryTime.text = battery3.ToString("0.00");
+                        break;
+                }
+
+                if (numberOfBatteriesCollected < 3 && batteryMessageCoroutine == null && nextBatteryTimeCoroutine == null)
+                {
+                    batteryMessageCoroutine = StartCoroutine(IncreaseScale(batteryMessage));
+                    nextBatteryTimeCoroutine = StartCoroutine(IncreaseScale(nextBatteryTime));
+                }
+            }
         }
     }
 
@@ -118,7 +156,7 @@ public class EndScreen : MonoBehaviour
         playerUpgradeData.batteries += batteryCount;
     }
 
-    IEnumerator IncreaseScale(Image image)
+    IEnumerator IncreaseScale(Graphic image)
     {
         float elapsed = 0f;
         float duration = 0.25f;

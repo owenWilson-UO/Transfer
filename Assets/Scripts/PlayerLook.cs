@@ -18,6 +18,8 @@ public class PlayerLook : MonoBehaviour
     float mouseX;
     float mouseY;
 
+    float rightStickX;
+    float rightStickY;
 
     float xRotation;
     float yRotation;
@@ -41,10 +43,22 @@ public class PlayerLook : MonoBehaviour
             mouseX = Input.GetAxisRaw("Mouse X");
             mouseY = Input.GetAxisRaw("Mouse Y");
 
-            yRotation += mouseX * sensX * multiplier;
-            xRotation -= mouseY * sensY * multiplier;
+            //Controller
+            rightStickX = Input.GetAxis("RightStickHorizontal");
+            rightStickY = Input.GetAxis("RightStickVertical");
 
-            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+            if (rightStickX != 0f || rightStickY != 0f)
+            {
+                Debug.Log("look around");
+            }
+
+            float lookX = mouseX + rightStickX;
+            float lookY = mouseY + rightStickY;
+
+            yRotation += lookX * sensX * multiplier;
+            xRotation -= lookY * sensY * multiplier;
+
+            //xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
             cam.transform.localRotation = Quaternion.Euler(xRotation, yRotation, wallRun.tilt);
             orientation.transform.rotation = Quaternion.Euler(0, yRotation, 0);

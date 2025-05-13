@@ -142,5 +142,9 @@ public class AnimationStateController : MonoBehaviour
     }
 
     public void PlayWindup() => animator.SetTrigger(windupTrigger);
-    public void PlayThrow()   => animator.SetTrigger(throwTrigger);
+    public void PlayThrow() 
+    { 
+        animator.SetTrigger(throwTrigger);
+        animator.ResetTrigger(windupTrigger);
+    }  
 }

@@ -97,7 +97,7 @@ public class WallRun : MonoBehaviour
         }
 
         //this is the logic for wall jumping / jumping off of a wall
-        if (Input.GetKeyDown(playerMovement.jumpKey))
+        if (playerMovement.jumpButton.action.triggered)
         {
             if (wallLeft)
             {

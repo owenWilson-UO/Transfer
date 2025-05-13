@@ -17,10 +17,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Will/SandboxLevel.unity
     guid: ea6d0d738c03e8f4c814766023510b59
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Owen/IntroSequence.unity
     guid: d4adeba1a3c73d14aa6e25807a2acaf2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Anthony/IntroSequenceWSFX.unity
     guid: 4523c11960bd40b478ad8bad30542780
   m_configObjects:

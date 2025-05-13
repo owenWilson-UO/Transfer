@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class PsylinkThrowable : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class PsylinkThrowable : MonoBehaviour
     [SerializeField] private UpgradeManagerUI upgradeManagerUI;
 
     [Header("KeyBinds")]
-    [SerializeField] KeyCode throwKey;
+    [SerializeField] InputActionReference throwButton;
 
     public bool psylinkInSight {  get; private set; }
     public bool readyToThrow;
@@ -27,6 +28,16 @@ public class PsylinkThrowable : MonoBehaviour
     {
         readyToThrow = true; //change when we add pickups
         activePsylinks = new List<PsylinkAndObject>();
+    }
+
+    private void OnEnable()
+    {
+        throwButton.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        throwButton.action.Disable();
     }
 
     private void Update()
@@ -48,7 +59,7 @@ public class PsylinkThrowable : MonoBehaviour
             outerCrossHair.rectTransform.rotation = Quaternion.identity;
         }
 
-        if (Input.GetKeyDown(throwKey) && !upgradeManagerUI.isOpen)
+        if (throwButton.action.triggered && !upgradeManagerUI.isOpen)
         {
             if (psylinkInSight && readyToThrow) //later on add max Psylink var and skill tree upgrades
             {

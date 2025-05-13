@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
@@ -37,10 +39,10 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 12f;
 
     [Header("Keybinds")]
-    [SerializeField] public KeyCode jumpKey = KeyCode.Space;
-    [SerializeField] public KeyCode sprintKey = KeyCode.LeftShift;
-    [SerializeField] public KeyCode crouchKey = KeyCode.C;
-    [SerializeField] public KeyCode slowMotionKey = KeyCode.Q;
+    [SerializeField] public InputActionReference jumpButton;
+    [SerializeField] public InputActionReference sprintButton;
+    [SerializeField] public InputActionReference crouchButton;
+    [SerializeField] public InputActionReference slowMotionButton;
 
     [Header("Drag")]
     [SerializeField] float groundDrag = 6f;
@@ -59,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
     public bool isGrounded { get; private set; }
     public bool isCrouching { get; private set; }
     public bool isSprinting { get; private set; }
+    public bool crouchButtonPressedIn { get; private set; }
     public bool isSliding { get; private set; }
     public float groundDistance = 0.01f;
 
@@ -113,7 +116,31 @@ public class PlayerMovement : MonoBehaviour
         }
         return false;
     }
-    
+
+    private void OnEnable()
+    {
+        jumpButton.action.Enable();
+        sprintButton.action.Enable();
+
+        crouchButton.action.started += (ctx) => crouchButtonPressedIn = true; 
+        crouchButton.action.canceled += (ctx) => crouchButtonPressedIn = false; 
+        crouchButton.action.Enable();
+
+        slowMotionButton.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        jumpButton.action.Disable();
+        sprintButton.action.Disable();
+
+        crouchButton.action.started -= (ctx) => crouchButtonPressedIn = true;
+        crouchButton.action.canceled -= (ctx) => crouchButtonPressedIn = false;
+        crouchButton.action.Disable();
+
+        slowMotionButton.action.Disable();
+    }
+
     private void Start()
     {
         footstepTimer = 0f;
@@ -153,12 +180,12 @@ public class PlayerMovement : MonoBehaviour
         //Logic for slowing down time. Since we use unity's physics for everything,
         //we can simply change the global Time.timeScale to slow down time.
         //We do this here using a Coroutine to avoid a snappy change in and out of slow motion
-        if (upgradeData.maxSlowMotionDuration > 0f && Input.GetKeyDown(slowMotionKey) && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
+        if (upgradeData.maxSlowMotionDuration > 0f && slowMotionButton.action.triggered && (!slowMotionCoolingDown || isInSlowMotion) && !upgradeManagerUI.isOpen)
         {
             SlowMotion();
         }
 
-        if (Input.GetKeyDown(jumpKey) && isGrounded && !upgradeManagerUI.isOpen)
+        if (jumpButton.action.triggered && isGrounded && !upgradeManagerUI.isOpen)
         {
             if (isCrouching)
             {
@@ -170,12 +197,12 @@ public class PlayerMovement : MonoBehaviour
                 Jump();
             }
         }
-        if (Input.GetKeyDown(crouchKey) && isGrounded && !isSprinting && !upgradeManagerUI.isOpen)
+        if (crouchButton.action.triggered && isGrounded && !isSprinting && !upgradeManagerUI.isOpen)
         {
             isCrouching = !isCrouching;
             isSliding = false;
         }
-        else if (Input.GetKey(crouchKey) && isGrounded && isSprinting && slideTimer == 0f && !upgradeManagerUI.isOpen)
+        else if (crouchButtonPressedIn && isGrounded && isSprinting && slideTimer == 0f && !upgradeManagerUI.isOpen)
         {
             //Sliding logic that locks the player into sliding that direction until the slide is up
             //and there is a 0.5s cooldown until you can slide again
@@ -244,7 +271,7 @@ public class PlayerMovement : MonoBehaviour
 
             slowMoCoroutine = StartCoroutine(SmoothTimeScale(targetTimeScale, vignettePowerStart, vignettePowerDuringSloMotion));
             slowMoTimerCoroutine = StartCoroutine(SlowMoTimer());
-            //This will automatically turn off the slow motion ability if the slowMotionKey is not pressed
+            //This will automatically turn off the slow motion ability if the slowMotionButton is not pressed
             //before the players current maxDuration time has passsed.
             isInSlowMotion = true;
         }
@@ -262,7 +289,7 @@ public class PlayerMovement : MonoBehaviour
     void ControlSpeed()
     {
         //Changes the movement speed of the player based on the player's state
-        if (Input.GetKey(sprintKey) && (isGrounded || !rb.useGravity) && verticalMovement == 1)
+        if (sprintButton.action.IsPressed() && (isGrounded || !rb.useGravity) && verticalMovement > 0f)
         {
             moveSpeed = Mathf.Lerp(moveSpeed, sprintSpeed, acceleration * Time.deltaTime);
             isSprinting = true;

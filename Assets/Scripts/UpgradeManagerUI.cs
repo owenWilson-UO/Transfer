@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
@@ -46,8 +47,8 @@ public class UpgradeManagerUI : MonoBehaviour
     private DepthOfField dof;
 
     [Header("KeyBinds")]
-    [SerializeField] KeyCode upgradeMenuKey;
-    [SerializeField] KeyCode pauseKey;
+    [SerializeField] InputActionReference upgradeMenuButton;
+    [SerializeField] InputActionReference pauseButton;
 
     public bool isOpen { private set; get; }
     public bool isPaused { private set; get; }
@@ -57,6 +58,17 @@ public class UpgradeManagerUI : MonoBehaviour
 
     private readonly Color blue = new Color(0f, 188f, 255f, 125f) / 255f;
 
+    private void OnEnable()
+    {
+        upgradeMenuButton.action.Enable();
+        pauseButton.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        upgradeMenuButton.action.Disable();
+        pauseButton.action.Disable();
+    }
 
     private void Start()
     {
@@ -135,7 +147,7 @@ public class UpgradeManagerUI : MonoBehaviour
         Transfer.SetActive(upgradeData.maxTransferAmount > 0);
         Psylink.SetActive(upgradeData.maxPsylinkAmount > 0);
 
-        if (Input.GetKeyDown(upgradeMenuKey) && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isPaused && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
+        if (upgradeMenuButton.action.triggered && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isPaused && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
         {
             //logic for opening the upgrade menu and closing it based on the key press
             isOpen = !isOpen;
@@ -165,7 +177,7 @@ public class UpgradeManagerUI : MonoBehaviour
             //Time.timeScale = 0f;
         }
 
-        if (Input.GetKeyDown(pauseKey) && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isOpen)
+        if (pauseButton.action.triggered && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isOpen)
         {
             isPaused = !isPaused;
 

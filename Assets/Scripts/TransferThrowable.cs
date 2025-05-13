@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Drawing;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.Rendering.Universal;
@@ -23,6 +24,8 @@ public class TransferThrowable : MonoBehaviour
 
     [Header("Throwing")]
     public KeyCode throwKey = KeyCode.Mouse1;
+    [SerializeField] InputActionReference throwButton;
+    private bool holding;
     public float throwForce;
     public float throwUpwardForce;
 
@@ -60,6 +63,39 @@ public class TransferThrowable : MonoBehaviour
     private Coroutine _printCoroutine;
     private Coroutine _warpCoroutine;
 
+    private void OnEnable()
+    {
+        throwButton.action.started += OnThrowStarted;
+        throwButton.action.canceled += OnThrowEnded;
+        throwButton.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        throwButton.action.started -= OnThrowStarted;
+        throwButton.action.canceled -= OnThrowEnded;
+        throwButton.action.Disable();
+    }
+
+    private void OnThrowStarted(InputAction.CallbackContext ctx)
+    {
+        if (readyToThrow && transferAmount > 0)
+        {
+            isPreparingThrow = true;
+            animController.PlayWindup();
+        }
+    }
+
+    private void OnThrowEnded(InputAction.CallbackContext ctx)
+    {
+        if (isPreparingThrow)
+        {
+            isPreparingThrow = false;
+            animController.PlayThrow();
+            Throw();
+        }
+    }
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -95,26 +131,12 @@ public class TransferThrowable : MonoBehaviour
 
         var td = FindFirstObjectByType<ThrowableDetection>();
 
-        // 1) on press: windup
-        if (Input.GetKeyDown(throwKey) && readyToThrow && transferAmount > 0)
-        {
-            isPreparingThrow = true;
-            animController.PlayWindup();
-        }
 
         ChangeCrosshair();
 
-        // 2) on release: throw
-        if (Input.GetKeyUp(throwKey) && isPreparingThrow)
-        {
-            isPreparingThrow = false;
-            animController.PlayThrow();
-            Throw();
-        }
-
         // 3) After you’ve thrown (readyToThrow==false), a click can teleport if a knife exists
         //    (or if td.targetHit is true—you keep your existing logic)
-        if (!readyToThrow && Input.GetKeyDown(throwKey) && td != null)
+        if (!readyToThrow && throwButton.action.triggered && td != null)
         {
             TeleportToTransfer(td);
         }
@@ -182,6 +204,11 @@ public class TransferThrowable : MonoBehaviour
 
     private void TeleportToTransfer(ThrowableDetection td, bool keepPlayerMomentum = false)
     {
+        if (td == null)
+        {
+            return;
+        }
+
         Vector3 playerLinearVelocity = rb.linearVelocity;
         Vector3 playerAngularVelocity = rb.angularVelocity;
 
