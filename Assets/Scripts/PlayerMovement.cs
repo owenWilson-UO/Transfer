@@ -89,6 +89,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private AudioClip walkingClip;
     [SerializeField] private float footstepInterval = 0.5f; // time between footsteps
     private float footstepTimer;
+    [SerializeField] private AudioSource slidingAudioSource; // For the slide sfx
+    [SerializeField] private AudioClip slidingClip;
+
 
     Vector3 moveDir;
     Vector3 slopeMoveDir;
@@ -218,6 +221,14 @@ public class PlayerMovement : MonoBehaviour
             }
             rb.AddForce(slideDir.normalized * slideForce, ForceMode.Impulse);
             rb.AddForce(Vector3.down * 1f, ForceMode.Impulse);
+
+            if (slidingAudioSource != null)
+            {
+                slidingAudioSource.Stop(); // Ensure clean restart
+                slidingAudioSource.pitch = Random.Range(0.9f, 1.1f);
+                slidingAudioSource.Play();
+            }
+
         }
 
         if (slideTimer > 0) // timer to control how long the player is sliding and the cooldown
@@ -230,6 +241,10 @@ public class PlayerMovement : MonoBehaviour
             else if (slideTimer-0.5f <= 0f)
             {
                 isSliding = false;
+                if (slidingAudioSource.isPlaying)
+                {
+                    slidingAudioSource.Stop();
+                }
             }
 
         }
@@ -513,7 +528,8 @@ public class PlayerMovement : MonoBehaviour
     private void HandleFootstepAudio()
     {
         bool isWalking = (Mathf.Abs(horizontalMovement) > 0 || Mathf.Abs(verticalMovement) > 0);
-        bool canPlayFootstep = isGrounded && isWalking && !isSliding && !isCrouching;
+        bool isWallRunning = !rb.useGravity && isWalking;
+        bool canPlayFootstep = (isGrounded || isWallRunning) && isWalking && !isSliding && !isCrouching;
 
         if (canPlayFootstep)
         {

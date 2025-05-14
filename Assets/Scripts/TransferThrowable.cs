@@ -56,6 +56,9 @@ public class TransferThrowable : MonoBehaviour
     
     // Instant Transmission sfx
     private AudioSource teleportAudio;
+    // Knife throw sfx
+    [SerializeField] private AudioSource throwAudioSource;
+    [SerializeField] private AudioClip throwClip;
 
 
     // cache the knife’s “ready” scale
@@ -176,7 +179,10 @@ public class TransferThrowable : MonoBehaviour
         var projRb = proj.GetComponent<Rigidbody>();
         projRb.AddForce(forceDir * throwForce + transform.up * throwUpwardForce,
                         ForceMode.Impulse);
-
+        if (throwAudioSource != null && throwClip != null){
+            throwAudioSource.pitch = Random.Range(0.95f, 1.05f);
+            throwAudioSource.PlayOneShot(throwClip);
+        }
         // —— Trail setup ——
         var trail = proj.GetComponent<TrailRenderer>();
         if (trail != null)
