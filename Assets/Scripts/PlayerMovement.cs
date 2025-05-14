@@ -190,7 +190,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (jumpButton.action.triggered && isGrounded && !upgradeManagerUI.isOpen)
         {
-            if (isCrouching)
+            if (isSliding)
+            {
+                Jump();
+                isCrouching = false;
+                isSliding = false;
+            }
+            else if (isCrouching)
             {
                 isCrouching = false;
                 isSliding = false;

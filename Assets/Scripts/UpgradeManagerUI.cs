@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using static UnityEngine.InputSystem.InputAction;
 
 public class UpgradeManagerUI : MonoBehaviour
 {
@@ -28,6 +30,10 @@ public class UpgradeManagerUI : MonoBehaviour
     [SerializeField] Button TT3;
     [SerializeField] Button P2;
     [SerializeField] Button P3;
+
+    [Header("Select On Open Buttons")]
+    [SerializeField] GameObject retryPause;
+    [SerializeField] GameObject TT1;
 
     [Header("Links")]
     [SerializeField] Image SM12;
@@ -56,18 +62,92 @@ public class UpgradeManagerUI : MonoBehaviour
     private Coroutine fadeRoutine;
     private Animator upgradeAnimator;
 
-    private readonly Color blue = new Color(0f, 188f, 255f, 125f) / 255f;
+    private readonly Color blueOpaque = new Color(0f, 188f, 255f, 125f) / 255f;
+    private readonly Color blue = new Color(0f, 188f, 255f, 255f) / 255f;
 
     private void OnEnable()
     {
+        upgradeMenuButton.action.started += OnUpgradePress;
         upgradeMenuButton.action.Enable();
+
+        pauseButton.action.started += OnPausePress;
         pauseButton.action.Enable();
     }
 
     private void OnDisable()
     {
+        upgradeMenuButton.action.started -= OnUpgradePress;
         upgradeMenuButton.action.Disable();
+
+        pauseButton.action.started -= OnPausePress;
         pauseButton.action.Disable();
+    }
+
+    private void OnUpgradePress(CallbackContext ctx)
+    {
+        if (canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isPaused && (upgradeData.maxSlowMotionDuration > 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
+        {
+            //logic for opening the upgrade menu and closing it based on the key press
+            isOpen = !isOpen;
+
+            Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = isOpen;
+
+            EventSystem.current.SetSelectedGameObject(null);
+            if (isOpen)
+            {
+                if (ctx.control.device.name != "Keyboard")
+                {
+                    EventSystem.current.SetSelectedGameObject(TT1);
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+            }
+
+            if (fadeRoutine != null) StopCoroutine(fadeRoutine);
+
+            if (isOpen)
+            {
+                cg.interactable = true;
+                fadeRoutine = StartCoroutine(OpenSequence());
+            }
+            else
+            {
+                //this boolean controls the animation state of the upgrade menu
+                upgradeAnimator.SetBool("isOpen", false);
+                fadeRoutine = StartCoroutine(FadeUI(false));
+            }
+        }
+    }
+
+    private void OnPausePress(CallbackContext ctx)
+    {
+        if (canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isOpen)
+        {
+            isPaused = !isPaused;
+
+            Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = isPaused;
+
+            EventSystem.current.SetSelectedGameObject(null);
+            if (isPaused)
+            {
+                Debug.Log(pauseButton.action.activeControl);
+                if (ctx.control.device.name != "Keyboard")
+                {
+                    EventSystem.current.SetSelectedGameObject(retryPause);
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+            } 
+
+            playerCG.alpha = isPaused ? 0f : 1f;
+            Time.timeScale = isPaused ? 0f : 1f;
+            pauseCG.alpha = isPaused ? 1f : 0f;
+            pauseCG.blocksRaycasts = isPaused;
+            pauseCG.interactable = isPaused;
+            dof.focalLength.value = isPaused ? 100f : 0f;
+        }
     }
 
     private void Start()
@@ -79,14 +159,14 @@ public class UpgradeManagerUI : MonoBehaviour
         switch (upgradeData.maxSlowMotionDuration)
         {
             case 2f:
-                SMT2.interactable = false;
-                SM12.color = blue;
+                SetColorBlock(SMT2);
+                SM12.color = blueOpaque;
                 break;
             case 3f:
-                SMT3.interactable = false;
-                SMT2.interactable = false;
-                SM12.color = blue;
-                SM23.color = blue;
+                SetColorBlock(SMT3);
+                SetColorBlock(SMT2);
+                SM12.color = blueOpaque;
+                SM23.color = blueOpaque;
                 break;
             default:
                 break;
@@ -97,14 +177,14 @@ public class UpgradeManagerUI : MonoBehaviour
         switch (upgradeData.maxTransferAmount)
         {
             case 2:
-                TT2.interactable = false;
-                T12.color = blue;
+                SetColorBlock(TT2);      
+                T12.color = blueOpaque;
                 break;
             case 3:
-                TT3.interactable = false;
-                TT2.interactable = false;
-                T12.color = blue;
-                T23.color = blue;
+                SetColorBlock(TT3);
+                SetColorBlock(TT2);
+                T12.color = blueOpaque;
+                T23.color = blueOpaque;
                 break;
             default:
                 break;
@@ -115,14 +195,14 @@ public class UpgradeManagerUI : MonoBehaviour
         switch (upgradeData.maxPsylinkAmount)
         {
             case 2:
-                P2.interactable = false;
-                P12.color = blue;
+                SetColorBlock(P2);
+                P12.color = blueOpaque;
                 break;
             case 3:
-                P3.interactable = false;
-                P2.interactable = false;
-                P12.color = blue;
-                P23.color = blue;
+                SetColorBlock(P3);
+                SetColorBlock(P2);
+                P12.color = blueOpaque;
+                P23.color = blueOpaque;
                 break;
             default:
                 break;
@@ -143,54 +223,16 @@ public class UpgradeManagerUI : MonoBehaviour
 
     private void Update()
     {
-        SlowMotion.SetActive(upgradeData.maxSlowMotionDuration > 0f);
-        Transfer.SetActive(upgradeData.maxTransferAmount > 0);
-        Psylink.SetActive(upgradeData.maxPsylinkAmount > 0);
+        SlowMotion.SetActive(upgradeData.maxSlowMotionDuration > 0f && isOpen);
+        Transfer.SetActive(upgradeData.maxTransferAmount > 0 && isOpen);
+        Psylink.SetActive(upgradeData.maxPsylinkAmount > 0 && isOpen);
 
-        if (upgradeMenuButton.action.triggered && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isPaused && (upgradeData.maxSlowMotionDuration> 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
-        {
-            //logic for opening the upgrade menu and closing it based on the key press
-            isOpen = !isOpen;
-
-            if (fadeRoutine != null) StopCoroutine(fadeRoutine);
-
-            if (isOpen)
-            {
-                cg.interactable = true;
-                fadeRoutine = StartCoroutine(OpenSequence());
-            }
-            else
-            {
-                //this boolean controls the animation state of the upgrade menu
-                upgradeAnimator.SetBool("isOpen", false);
-                fadeRoutine = StartCoroutine(FadeUI(false));
-            }
-
-
-            Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = isOpen;
-        }
         
         if (isOpen)
         {
             upgradeAnimator.Update(Time.unscaledDeltaTime);
-            //Time.timeScale = 0f;
         }
 
-        if (pauseButton.action.triggered && canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isOpen)
-        {
-            isPaused = !isPaused;
-
-            playerCG.alpha = isPaused ? 0f : 1f;
-            Time.timeScale = isPaused ? 0f : 1f;
-            pauseCG.alpha = isPaused ? 1f : 0f;
-            pauseCG.blocksRaycasts = isPaused;
-            pauseCG.interactable = isPaused;
-            dof.focalLength.value = isPaused ? 100f : 0f;
-
-            Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = isPaused;
-        }
 
         batteryCount.text = upgradeData.batteries.ToString();
         
@@ -201,11 +243,11 @@ public class UpgradeManagerUI : MonoBehaviour
     #region Slow Motion Upgrades
     public void OnSlowMotionTier2Press()
     {
-        if (upgradeData.batteries >= 1)
+        if (upgradeData.maxSlowMotionDuration == 1f && upgradeData.batteries >= 1)
         {
             upgradeData.maxSlowMotionDuration = 2f;
-            SMT2.interactable = false;
-            SM12.color = blue;
+            SetColorBlock(SMT2);
+            SM12.color = blueOpaque;
             upgradeData.batteries--;
         }
     }
@@ -215,8 +257,8 @@ public class UpgradeManagerUI : MonoBehaviour
         if (upgradeData.maxSlowMotionDuration == 2f && upgradeData.batteries >= 2)
         {
             upgradeData.maxSlowMotionDuration = 3f;
-            SMT3.interactable = false;
-            SM23.color = blue;
+            SetColorBlock(SMT3);
+            SM23.color = blueOpaque;
             upgradeData.batteries-=2;
         }
     }
@@ -225,12 +267,12 @@ public class UpgradeManagerUI : MonoBehaviour
     #region Transfer Upgrades
     public void OnTransferTier2Press()
     {
-        if (upgradeData.batteries >= 1)
+        if (upgradeData.maxTransferAmount == 1 && upgradeData.batteries >= 1)
         {
-            upgradeData.maxTransferAmount = 2;
-            TT2.interactable = false;
-            T12.color = blue;
 
+            upgradeData.maxTransferAmount = 2;
+            T12.color = blue;
+            SetColorBlock(TT2);
             upgradeData.batteries--;
         }
     }
@@ -240,8 +282,8 @@ public class UpgradeManagerUI : MonoBehaviour
         if (upgradeData.maxTransferAmount == 2 && upgradeData.batteries >= 2)
         {
             upgradeData.maxTransferAmount = 3;
-            TT3.interactable = false;
-            T23.color = blue;
+            SetColorBlock(TT3);
+            T23.color = blueOpaque;
 
             upgradeData.batteries-=2;
         }
@@ -251,11 +293,11 @@ public class UpgradeManagerUI : MonoBehaviour
     #region Psylink Upgrades
     public void OnPsylinkTier2Press()
     {
-        if (upgradeData.batteries >= 1)
+        if (upgradeData.maxPsylinkAmount == 1 && upgradeData.batteries >= 1)
         {
             upgradeData.maxPsylinkAmount = 2;
-            P2.interactable = false;
-            P12.color = blue;
+            SetColorBlock(P2);
+            P12.color = blueOpaque;
 
             upgradeData.batteries--;
         }
@@ -266,8 +308,8 @@ public class UpgradeManagerUI : MonoBehaviour
         if (upgradeData.maxPsylinkAmount == 2 && upgradeData.batteries >= 2)
         {
             upgradeData.maxPsylinkAmount = 3;
-            P3.interactable = false;
-            P23.color = blue;
+            SetColorBlock(P3);
+            P23.color = blueOpaque;
 
             upgradeData.batteries-=2;
         }
@@ -306,5 +348,18 @@ public class UpgradeManagerUI : MonoBehaviour
         upgradeAnimator.SetBool("isOpen", true);
 
         Time.timeScale = 0f;
+    }
+
+    private void SetColorBlock(Button b)
+    {
+        ColorBlock cb = b.colors;
+
+        cb.normalColor = blue;
+        cb.highlightedColor = blue;
+        cb.pressedColor = blue;
+        cb.selectedColor = blue;
+        cb.disabledColor = blue;
+
+        b.colors = cb;
     }
 }

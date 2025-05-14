@@ -530,9 +530,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0, g: 0.7372549, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_PressedColor: {r: 0, g: 0.7372549, b: 1, a: 0.5254902}
-    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_DisabledColor: {r: 0, g: 0.7372549, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1647,6 +1647,8 @@ MonoBehaviour:
   TT3: {fileID: 6281832454205966452}
   P2: {fileID: 1056790648239639367}
   P3: {fileID: 1305792786861814558}
+  retryPause: {fileID: 0}
+  TT1: {fileID: 5291366332069880429}
   SM12: {fileID: 4649481568735176186}
   SM23: {fileID: 5094423675220057332}
   T12: {fileID: 2319562849684843682}
@@ -1840,6 +1842,7 @@ GameObject:
   - component: {fileID: 7511991508144016070}
   - component: {fileID: 4373424551668941187}
   - component: {fileID: 4699694229013836571}
+  - component: {fileID: 1390581778568366680}
   m_Layer: 0
   m_Name: Slow Motion Tier 1
   m_TagString: Untagged
@@ -1945,7 +1948,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 4373424551668941187}
   m_OnClick:
     m_PersistentCalls:
@@ -1962,6 +1965,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 0
+--- !u!114 &1390581778568366680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2448908203790503558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e66d19c2e49e0b45b76e95e6a2d0e62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Title: Slow Motion Tier I
+  Description: "1 second of slow motion \nwith normal look speed"
+  tooltipPrefab: {fileID: 1394482206071475534, guid: f4bee08d3a2e8eb418bde5fddb7a21fa, type: 3}
 --- !u!1 &2594100975889128424
 GameObject:
   m_ObjectHideFlags: 0
@@ -3099,9 +3117,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0, g: 0.7372549, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_PressedColor: {r: 0, g: 0.7372549, b: 1, a: 0.5254902}
-    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_DisabledColor: {r: 0, g: 0.7372549, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -3801,8 +3819,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 70, y: -5}
-  m_SizeDelta: {x: 10, y: 50}
+  m_AnchoredPosition: {x: 90, y: -5}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3045445546282206158
 CanvasRenderer:
@@ -3866,7 +3884,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -4072,7 +4090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.7372549, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4108,12 +4126,12 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.4764151, g: 0.8624305, b: 1, a: 1}
     m_DisabledColor: {r: 0, g: 0.7372549, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -4128,7 +4146,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 2495293513261340748}
   m_OnClick:
     m_PersistentCalls:
@@ -4262,9 +4280,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0, g: 0.7372549, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_PressedColor: {r: 0, g: 0.7372549, b: 1, a: 0.5254902}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_DisabledColor: {r: 0, g: 0.7372549, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -5089,6 +5107,7 @@ GameObject:
   - component: {fileID: 1185572896334516169}
   - component: {fileID: 6517034042940611486}
   - component: {fileID: 6799327306226269164}
+  - component: {fileID: 9078681810432785182}
   m_Layer: 0
   m_Name: Psylink Tier 1
   m_TagString: Untagged
@@ -5138,7 +5157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.7372549, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5174,7 +5193,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -5194,7 +5213,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 6517034042940611486}
   m_OnClick:
     m_PersistentCalls:
@@ -5211,6 +5230,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 0
+--- !u!114 &9078681810432785182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5820087039174757822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e66d19c2e49e0b45b76e95e6a2d0e62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Title: Psylink Tolerance Tier I
+  Description: "Throw psylink at objects \nthat are marked to move them"
+  tooltipPrefab: {fileID: 1394482206071475534, guid: f4bee08d3a2e8eb418bde5fddb7a21fa, type: 3}
 --- !u!1 &6025647306785973402
 GameObject:
   m_ObjectHideFlags: 0
@@ -6000,9 +6034,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0, g: 0.7372549, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_PressedColor: {r: 0, g: 0.7372549, b: 1, a: 0.5254902}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_DisabledColor: {r: 0, g: 0.7372549, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -6209,6 +6243,8 @@ MonoBehaviour:
   walkingAudioSource: {fileID: 0}
   walkingClip: {fileID: 8300000, guid: 073b28fea69348e4db03fb027e118e4b, type: 3}
   footstepInterval: 0.5
+  slidingAudioSource: {fileID: 0}
+  slidingClip: {fileID: 8300000, guid: 342cb8bafd3ac0d48aaf2ffc16c3f3c6, type: 3}
 --- !u!114 &9027956855406504422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6224,9 +6260,11 @@ MonoBehaviour:
   wallRun: {fileID: 8393337366043016070}
   upgradeManagerUI: {fileID: 1589123629470925692}
   endScreen: {fileID: 0}
-  sensX: 150
-  sensY: 150
-  multiplier: 0.01
+  playerUpgradeData: {fileID: 11400000, guid: 64025b4d43730d34bb26a58dd666291a, type: 2}
+  sensX: 1
+  sensY: 1
+  _slider: {fileID: 0}
+  sliderVal: {fileID: 0}
   cam: {fileID: 7946594618957396407}
   orientation: {fileID: 6729615104567226125}
 --- !u!114 &8393337366043016070
@@ -6283,6 +6321,8 @@ MonoBehaviour:
   warpDuration: 0.5
   outerCrossHair: {fileID: 2830474355635368214}
   transferCrosshair: {fileID: 6016962883935789883}
+  throwAudioSource: {fileID: 0}
+  throwClip: {fileID: 8300000, guid: 850af900c95b7f744abb38dfbf5d1307, type: 3}
 --- !u!114 &7692983761122235597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6976,9 +7016,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0, g: 0.7372549, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_PressedColor: {r: 0, g: 0.7372549, b: 1, a: 0.5254902}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_DisabledColor: {r: 0, g: 0.7372549, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -7763,9 +7803,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0, g: 0.7372549, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_PressedColor: {r: 0, g: 0.7372549, b: 1, a: 0.5254902}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.47843137, g: 0.8627451, b: 1, a: 1}
     m_DisabledColor: {r: 0, g: 0.7372549, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1

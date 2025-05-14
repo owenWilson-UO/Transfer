@@ -1,6 +1,12 @@
+using System;
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.Utilities;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
@@ -27,10 +33,13 @@ public class EndScreen : MonoBehaviour
     [SerializeField] private Image batteryImage2;
     [SerializeField] private Image batteryImage3;
 
-    [Header("Betteries Collected Messages")]
+    [Header("Batteries Collected Messages")]
     [SerializeField] private TextMeshProUGUI batteriesCollected;
     [SerializeField] private TextMeshProUGUI batteryMessage;
     [SerializeField] private TextMeshProUGUI nextBatteryTime;
+
+    [Header("Button to Activate")]
+    [SerializeField] private GameObject nextButton;
 
     private DepthOfField dof;
     private CanvasGroup cg;
@@ -49,7 +58,10 @@ public class EndScreen : MonoBehaviour
     private float timeSpeed = 10f;
 
     public bool levelComplete { get; private set; }
-    public bool animatiionDone { get; private set; } = false;
+    public bool animationDone { get; private set; } = false;
+
+    private bool LastInputWasKeyboard;
+
     void Start()
     {
         cg = GetComponent<CanvasGroup>();
@@ -65,7 +77,24 @@ public class EndScreen : MonoBehaviour
 
     private void Update()
     {
-        if (animatiionDone && timeToComplete > timer.currentTime)
+        //need to detect if the last input was from the keyboard or not
+        //to determine if we should select the ui element when the level is complete or not
+        bool gamepadActive = Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame;
+        if (gamepadActive)
+        {
+            LastInputWasKeyboard = false;
+        }
+
+        foreach (KeyControl key in Keyboard.current.allKeys)
+        {
+            if (key.wasPressedThisFrame)
+            {
+                LastInputWasKeyboard = true;
+                break;
+            }
+        }
+
+        if (animationDone && timeToComplete > timer.currentTime)
         {
 
             timeToComplete = timeToComplete - Time.unscaledDeltaTime * timeSpeed > timer.currentTime ? timeToComplete - Time.unscaledDeltaTime * timeSpeed : timer.currentTime;
@@ -141,7 +170,18 @@ public class EndScreen : MonoBehaviour
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        animatiionDone = true;
+        animationDone = true;
+
+        nextButton.GetComponent<Button>().interactable = true;
+        nextButton.GetComponent<Button>().enabled = true;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        if (!LastInputWasKeyboard)
+        {
+            EventSystem.current.SetSelectedGameObject(nextButton);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
 
         if (timer.currentTime > battery1)
         {

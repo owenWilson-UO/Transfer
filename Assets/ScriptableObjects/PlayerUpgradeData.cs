@@ -19,6 +19,8 @@ public class PlayerUpgradeData : ScriptableObject
     public int maxTransferAmount = 0;
     public int maxPsylinkAmount = 0;
 
+    public float sensMultiplier = 1.5f;
+
     public Dictionary<LevelName, int> batteriesCollectedByLevel;
 
 
