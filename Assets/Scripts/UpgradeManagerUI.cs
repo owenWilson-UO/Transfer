@@ -7,6 +7,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using static UnityEngine.InputSystem.InputAction;
+using UnityEngine.InputSystem.Controls;
 
 public class UpgradeManagerUI : MonoBehaviour
 {
@@ -60,10 +61,14 @@ public class UpgradeManagerUI : MonoBehaviour
     public bool isPaused { private set; get; }
     public bool canOpen = true;
     private Coroutine fadeRoutine;
+    private Coroutine animationTimer;
     private Animator upgradeAnimator;
 
     private readonly Color blueOpaque = new Color(0f, 188f, 255f, 125f) / 255f;
     private readonly Color blue = new Color(0f, 188f, 255f, 255f) / 255f;
+
+    private bool LastInputWasKeyboardOrMouse;
+    private bool PreviousLastInputWasKeyboardOrMouse;
 
     private void OnEnable()
     {
@@ -96,9 +101,14 @@ public class UpgradeManagerUI : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(null);
             if (isOpen)
             {
+                if (animationTimer != null)
+                {
+                    StopCoroutine(animationTimer);
+                }
+                animationTimer = StartCoroutine(AnimationTimer(0.5f, ctx.control.device.name));
+
                 if (ctx.control.device.name != "Keyboard")
                 {
-                    EventSystem.current.SetSelectedGameObject(TT1);
                     Cursor.lockState = CursorLockMode.Locked;
                     Cursor.visible = false;
                 }
@@ -227,7 +237,8 @@ public class UpgradeManagerUI : MonoBehaviour
         Transfer.SetActive(upgradeData.maxTransferAmount > 0 && isOpen);
         Psylink.SetActive(upgradeData.maxPsylinkAmount > 0 && isOpen);
 
-        
+        GetLastInput();
+
         if (isOpen)
         {
             upgradeAnimator.Update(Time.unscaledDeltaTime);
@@ -316,6 +327,52 @@ public class UpgradeManagerUI : MonoBehaviour
     }
     #endregion
 
+    private void GetLastInput()
+    {
+        //need to detect if the last input was from the keyboard or not
+        //to determine if we should select the ui element when the level is complete or not
+        bool gamepadUsed = Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame;
+        bool keyboardOrMouseUsed = false;
+
+        // Detect keyboard input
+        foreach (KeyControl key in Keyboard.current.allKeys)
+        {
+            if (key.wasPressedThisFrame)
+            {
+                keyboardOrMouseUsed = true;
+                break;
+            }
+        }
+
+        // Detect mouse input
+        if (Mouse.current.leftButton.wasPressedThisFrame ||
+            Mouse.current.rightButton.wasPressedThisFrame ||
+            Mouse.current.middleButton.wasPressedThisFrame ||
+            Mouse.current.delta.ReadValue() != Vector2.zero)
+        {
+            keyboardOrMouseUsed = true;
+        }
+
+        // Determine last input source based on what happened this frame
+        if (keyboardOrMouseUsed)
+            LastInputWasKeyboardOrMouse = true;
+        else if (gamepadUsed)
+            LastInputWasKeyboardOrMouse = false;
+
+        if (isPaused || isOpen)
+        {
+            Cursor.lockState = LastInputWasKeyboardOrMouse ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = LastInputWasKeyboardOrMouse;
+
+            if (!LastInputWasKeyboardOrMouse && PreviousLastInputWasKeyboardOrMouse)
+            {
+                EventSystem.current.SetSelectedGameObject(isPaused ? retryPause : TT1);
+            }
+        }
+
+        PreviousLastInputWasKeyboardOrMouse = LastInputWasKeyboardOrMouse;
+    }
+
     public IEnumerator FadeUI(bool opening)
     {
         float t = 0f;
@@ -361,5 +418,25 @@ public class UpgradeManagerUI : MonoBehaviour
         cb.disabledColor = blue;
 
         b.colors = cb;
+    }
+
+    IEnumerator AnimationTimer(float duration, string deviceName)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (isOpen)
+        {
+            if (deviceName != "Keyboard")
+            {
+                EventSystem.current.SetSelectedGameObject(TT1);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
     }
 }

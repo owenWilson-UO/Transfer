@@ -66,6 +66,7 @@ public class TransferThrowable : MonoBehaviour
     private Coroutine _printCoroutine;
     private Coroutine _warpCoroutine;
 
+    private bool manualTeleport;
     private void OnEnable()
     {
         throwButton.action.started += OnThrowStarted;
@@ -82,6 +83,19 @@ public class TransferThrowable : MonoBehaviour
 
     private void OnThrowStarted(InputAction.CallbackContext ctx)
     {
+        if (manualTeleport)
+        {
+            manualTeleport = false;
+            return;
+        }
+
+        var td = FindFirstObjectByType<ThrowableDetection>();
+        if (!readyToThrow && td != null)
+        {
+            manualTeleport = true;
+            TeleportToTransfer(td);
+            return;
+        }
         if (readyToThrow && transferAmount > 0)
         {
             isPreparingThrow = true;
@@ -91,6 +105,11 @@ public class TransferThrowable : MonoBehaviour
 
     private void OnThrowEnded(InputAction.CallbackContext ctx)
     {
+        if (manualTeleport)
+        {
+            manualTeleport = false;
+            return;
+        }
         if (isPreparingThrow)
         {
             isPreparingThrow = false;
@@ -132,17 +151,16 @@ public class TransferThrowable : MonoBehaviour
         if (upgradeManagerUI.isOpen)
             return;
 
-        var td = FindFirstObjectByType<ThrowableDetection>();
-
-
         ChangeCrosshair();
+        
+        var td = FindFirstObjectByType<ThrowableDetection>();
 
         // 3) After you’ve thrown (readyToThrow==false), a click can teleport if a knife exists
         //    (or if td.targetHit is true—you keep your existing logic)
-        if (!readyToThrow && throwButton.action.triggered && td != null)
-        {
-            TeleportToTransfer(td);
-        }
+        //if (!readyToThrow && throwButton.action.triggered && td != null)
+        //{
+        //    TeleportToTransfer(td);
+        //}
 
         // 4) Also handle the “auto‐teleport on hit” you already had:
         if (td != null && td.targetHit)

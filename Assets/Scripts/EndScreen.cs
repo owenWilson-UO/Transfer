@@ -60,7 +60,8 @@ public class EndScreen : MonoBehaviour
     public bool levelComplete { get; private set; }
     public bool animationDone { get; private set; } = false;
 
-    private bool LastInputWasKeyboard;
+    private bool LastInputWasKeyboardOrMouse;
+    private bool PreviousLastInputWasKeyboardOrMouse;
 
     void Start()
     {
@@ -79,20 +80,47 @@ public class EndScreen : MonoBehaviour
     {
         //need to detect if the last input was from the keyboard or not
         //to determine if we should select the ui element when the level is complete or not
-        bool gamepadActive = Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame;
-        if (gamepadActive)
-        {
-            LastInputWasKeyboard = false;
-        }
+        bool gamepadUsed = Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame;
+        bool keyboardOrMouseUsed = false;
 
+        // Detect keyboard input
         foreach (KeyControl key in Keyboard.current.allKeys)
         {
             if (key.wasPressedThisFrame)
             {
-                LastInputWasKeyboard = true;
+                keyboardOrMouseUsed = true;
                 break;
             }
         }
+
+        // Detect mouse input
+        if (Mouse.current.leftButton.wasPressedThisFrame ||
+            Mouse.current.rightButton.wasPressedThisFrame ||
+            Mouse.current.middleButton.wasPressedThisFrame ||
+            Mouse.current.delta.ReadValue() != Vector2.zero)
+        {
+            keyboardOrMouseUsed = true;
+        }
+
+        // Determine last input source based on what happened this frame
+        if (keyboardOrMouseUsed)
+            LastInputWasKeyboardOrMouse = true;
+        else if (gamepadUsed)
+            LastInputWasKeyboardOrMouse = false;
+
+        if (animationDone)
+        {
+            Cursor.lockState = LastInputWasKeyboardOrMouse ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = LastInputWasKeyboardOrMouse;
+
+            if (!LastInputWasKeyboardOrMouse && PreviousLastInputWasKeyboardOrMouse)
+            {
+                EventSystem.current.SetSelectedGameObject(nextButton);
+            }
+        }
+
+        PreviousLastInputWasKeyboardOrMouse = LastInputWasKeyboardOrMouse;
+
 
         if (animationDone && timeToComplete > timer.currentTime)
         {
@@ -168,19 +196,15 @@ public class EndScreen : MonoBehaviour
         cg.interactable = true;
         cg.blocksRaycasts = true;
         Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
         animationDone = true;
 
         nextButton.GetComponent<Button>().interactable = true;
         nextButton.GetComponent<Button>().enabled = true;
 
         EventSystem.current.SetSelectedGameObject(null);
-        if (!LastInputWasKeyboard)
+        if (!LastInputWasKeyboardOrMouse)
         {
             EventSystem.current.SetSelectedGameObject(nextButton);
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
         }
 
         if (timer.currentTime > battery1)

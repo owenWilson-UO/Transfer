@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4843779215999376196}
   m_Layer: 0
   m_Name: DoorStop
-  m_TagString: Untagged
+  m_TagString: NoWallRun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -25,13 +25,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 540168819262432200}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 98.75}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 6.25, y: -25.9, z: 39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7788007331802216881}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &4843779215999376196
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -66,7 +66,7 @@ GameObject:
   - component: {fileID: 979564521680491140}
   m_Layer: 0
   m_Name: FinishTimer
-  m_TagString: Untagged
+  m_TagString: NoWallRun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -79,13 +79,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3458231737922516644}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 101.25}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 3.75, y: -25.9, z: 39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7788007331802216881}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &9200206400018482430
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -124,6 +124,8 @@ MonoBehaviour:
   finishElevator: {fileID: 0}
   endScreen: {fileID: 0}
   doorWall: {fileID: 4843779215999376196}
+  closeDoorOnly: 0
+  drop: {fileID: 0}
 --- !u!1 &4403325094034511110
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,7 +187,7 @@ GameObject:
   - component: {fileID: 4859039225788750410}
   m_Layer: 0
   m_Name: StartTimer
-  m_TagString: Untagged
+  m_TagString: NoWallRun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -243,3 +245,5 @@ MonoBehaviour:
   finishElevator: {fileID: 0}
   endScreen: {fileID: 0}
   doorWall: {fileID: 0}
+  closeDoorOnly: 0
+  drop: {fileID: 0}
