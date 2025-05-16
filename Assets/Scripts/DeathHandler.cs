@@ -7,6 +7,7 @@ public class DeathHandler : MonoBehaviour
 {
     private Image fadeImage;
     [SerializeField] private float fadeDuration = 1f;
+    [SerializeField] LevelName levelName;
     [SerializeField] private AbilityPickup transferPickup;
     [SerializeField] PlayerUpgradeData playerUpgradeData;
     private UpgradeManagerUI upgradeManagerUI;
@@ -21,7 +22,7 @@ public class DeathHandler : MonoBehaviour
     {
         if (other.CompareTag("Player") || other.CompareTag("Transfer"))
         {
-            if (transferPickup.firstTimeGrabbed && playerUpgradeData.maxTransferAmount == 1)
+            if (levelName == LevelName.Tutorial && transferPickup.firstTimeGrabbed && playerUpgradeData.maxTransferAmount == 1)
             {
                 playerUpgradeData.maxTransferAmount = 0;
             }
