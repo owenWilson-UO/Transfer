@@ -63,7 +63,7 @@ public class PsylinkDetection : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //logic for stopping the psylink when it hits a psylink interactable object
-        if (other.gameObject.CompareTag("Player")) { return; }
+        if (!other.gameObject.CompareTag("PsylinkInteractable")) { return; }
         pt.readyToThrow = true;
         isSpinning = false;
         if (targetHit)

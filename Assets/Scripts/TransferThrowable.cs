@@ -68,7 +68,7 @@ public class TransferThrowable : MonoBehaviour
 
     private bool manualTeleport;
 
-    private bool TransferLockout = false;
+    public bool TransferLockout { get; private set; } = false;
     private void OnEnable()
     {
         throwButton.action.started += OnThrowStarted;
@@ -351,8 +351,13 @@ public class TransferThrowable : MonoBehaviour
     {
         if (b)
         {
-            animController.PlayThrow();
+            if (isPreparingThrow)
+            {
+                animController.PlayThrowAnim();
+            }
             isPreparingThrow = false;
+
+            handKnife.SetActive(false);
         }
         TransferLockout = b;
     }

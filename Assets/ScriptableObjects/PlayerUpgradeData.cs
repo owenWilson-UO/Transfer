@@ -30,7 +30,7 @@ public class PlayerUpgradeData : ScriptableObject
 
         maxSlowMotionDuration = 1f;
         maxTransferAmount = 1;
-        maxPsylinkAmount = 0;
+        maxPsylinkAmount = 1;
         batteriesCollectedByLevel = new Dictionary<LevelName, int>
         {
             {LevelName.Tutorial, 0 },

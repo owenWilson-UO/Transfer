@@ -36,9 +36,18 @@ public class HUDManager : MonoBehaviour
 
         transferTextImage.color = tt.transferAmount == 0 ? grey : blue; 
         
-        if (tt.transferAmount < playerUpgradeData.maxTransferAmount && transferCoroutine == null)
+        if (tt.transferAmount < playerUpgradeData.maxTransferAmount && transferCoroutine == null && !tt.TransferLockout)
         {
             transferCoroutine = StartCoroutine(TransferCooldown());
+        }
+
+        if (tt.TransferLockout)
+        {
+            if (transferCoroutine != null) { StopCoroutine(transferCoroutine); }
+            transferCoroutine = null;
+            tt.transferAmount = 0;
+            transferFillImage.fillAmount = 0f;
+            transferFillBorder.fillAmount = 0f;
         }
     }
 
