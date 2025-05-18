@@ -67,6 +67,8 @@ public class TransferThrowable : MonoBehaviour
     private Coroutine _warpCoroutine;
 
     private bool manualTeleport;
+
+    private bool TransferLockout = false;
     private void OnEnable()
     {
         throwButton.action.started += OnThrowStarted;
@@ -83,6 +85,7 @@ public class TransferThrowable : MonoBehaviour
 
     private void OnThrowStarted(InputAction.CallbackContext ctx)
     {
+
         if (manualTeleport)
         {
             manualTeleport = false;
@@ -96,6 +99,9 @@ public class TransferThrowable : MonoBehaviour
             TeleportToTransfer(td);
             return;
         }
+        
+        if (TransferLockout) { return; }
+        
         if (readyToThrow && transferAmount > 0)
         {
             isPreparingThrow = true;
@@ -105,6 +111,8 @@ public class TransferThrowable : MonoBehaviour
 
     private void OnThrowEnded(InputAction.CallbackContext ctx)
     {
+        if (TransferLockout) { return; }
+
         if (manualTeleport)
         {
             manualTeleport = false;
@@ -337,5 +345,15 @@ public class TransferThrowable : MonoBehaviour
 
         warp.intensity.value = 0f;
         _warpCoroutine = null;
+    }
+
+    public void SetTransfferLockout(bool b)
+    {
+        if (b)
+        {
+            animController.PlayThrow();
+            isPreparingThrow = false;
+        }
+        TransferLockout = b;
     }
 }
