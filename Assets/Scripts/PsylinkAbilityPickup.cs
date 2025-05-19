@@ -4,9 +4,11 @@ using UnityEngine;
 public class PsylinkAbilityPickup : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField] private TutorialState tutorialState;
     [SerializeField] PlayerUpgradeData playerUpgradeData;
     [SerializeField] GameObject magicCircle;
     [SerializeField] PsylinkThrowable pt;
+    [SerializeField] CanvasGroup cg;
 
 
     [Header("Settings")]
@@ -35,6 +37,11 @@ public class PsylinkAbilityPickup : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             StartCoroutine(Despawn());
+            if (tutorialState.showPsylinkPopup)
+            {
+                tutorialState.showPsylinkPopup = false;
+                StartCoroutine(ToastCoroutine());
+            }
         }
 
         magicCircle.SetActive(false);
@@ -58,11 +65,38 @@ public class PsylinkAbilityPickup : MonoBehaviour
             yield return null;
         }
         transform.localScale = Vector3.zero;
-        gameObject.SetActive(false);
 
         if (playerUpgradeData.maxPsylinkAmount == 0)
         {
             playerUpgradeData.maxPsylinkAmount = 1;
         }
+    }
+
+    IEnumerator ToastCoroutine()
+    {
+
+        float elapsed = 0f;
+        float fadeDuration = 0.2f;
+        float duration = 2f;
+
+        while (elapsed <= fadeDuration)
+        {
+            cg.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        cg.alpha = 1f;
+        yield return new WaitForSecondsRealtime(duration);
+
+        elapsed = 1f;
+        while (elapsed >= 0f)
+        {
+            cg.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+            elapsed -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+        cg.alpha = 0f;
+        gameObject.SetActive(false);
+
     }
 }

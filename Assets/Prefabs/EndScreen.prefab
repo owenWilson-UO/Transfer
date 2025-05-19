@@ -1016,7 +1016,7 @@ MonoBehaviour:
   upgradeManagerUI: {fileID: 0}
   volume: {fileID: 1423464983994237000}
   endTime: {fileID: 5683779012258292687}
-  level: 0
+  level: 2
   battery1: 40
   battery2: 30
   battery3: 25

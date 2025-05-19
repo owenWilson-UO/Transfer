@@ -134,7 +134,7 @@ public class EndScreen : MonoBehaviour
         }
         else if (timeToComplete <= timer.currentTime)
         {
-            int numberOfBatteriesCollected = playerUpgradeData.batteriesCollectedByLevel[LevelName.Tutorial];
+            int numberOfBatteriesCollected = playerUpgradeData.batteriesCollectedByLevel[level];
             if (numberOfBatteriesCollected == 3 && batteriesCollectedCoroutine == null)
             {
                 batteriesCollectedCoroutine = StartCoroutine(IncreaseScale(batteriesCollected));

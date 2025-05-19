@@ -49,7 +49,6 @@ public class DeathHandler : MonoBehaviour
 
     public void Reload()
     {
-        ResetAbilities();
         StartCoroutine(FadeToBlack(0f));
     } 
 
