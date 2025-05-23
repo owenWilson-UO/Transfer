@@ -26,6 +26,11 @@ public class AnimationStateController : MonoBehaviour
     [Tooltip("Must match your Animator Trigger parameter")]
     [SerializeField] private string windupTrigger = "FP_Windup";
     [SerializeField] private string throwTrigger  = "FP_Throw";
+
+    [Header("Throwing")]
+    [Tooltip("Must match your Animator Trigger parameter")]
+    [SerializeField] private string windupLeftTrigger = "FP_WindupLeft";
+    [SerializeField] private string throwLeftTrigger  = "FP_ThrowLeft";
     
 
     private Quaternion _knifeRestRot;
@@ -142,9 +147,15 @@ public class AnimationStateController : MonoBehaviour
     }
 
     public void PlayWindup() => animator.SetTrigger(windupTrigger);
+    public void PlayLeftWindup() => animator.SetTrigger(windupLeftTrigger);
     public void PlayThrow() 
     { 
         animator.SetTrigger(throwTrigger);
         animator.ResetTrigger(windupTrigger);
+    }  
+    public void PlayThrowLeft() 
+    { 
+        animator.SetTrigger(throwLeftTrigger);
+        animator.ResetTrigger(windupLeftTrigger);
     }  
 }
