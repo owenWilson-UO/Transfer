@@ -38,7 +38,8 @@ public class TransferThrowable : MonoBehaviour
     [SerializeField] private float spawnDuration = 0.3f;
 
     [Header("Animation")]
-    [SerializeField] private AnimationStateController animController;
+    [SerializeField] private AnimationStateController rightAnimController;
+    [SerializeField] private AnimationStateController leftAnimController;
 
     [Header("Teleport Lens Warp")]
     [SerializeField] private Volume volume;
@@ -101,11 +102,12 @@ public class TransferThrowable : MonoBehaviour
         }
         
         if (TransferLockout) { return; }
-        
+
         if (readyToThrow && transferAmount > 0)
         {
             isPreparingThrow = true;
-            animController.PlayWindup();
+            rightAnimController.PlayWindup();
+            leftAnimController.PlayWindup();
         }
     }
 
@@ -121,7 +123,8 @@ public class TransferThrowable : MonoBehaviour
         if (isPreparingThrow)
         {
             isPreparingThrow = false;
-            animController.PlayThrow();
+            rightAnimController.PlayThrow();
+            leftAnimController.PlayThrow();
             Throw();
         }
     }
@@ -143,8 +146,10 @@ public class TransferThrowable : MonoBehaviour
             handKnife.SetActive(transferAmount > 0);
         }
 
-        if (animController == null)
-            animController = GetComponent<AnimationStateController>();
+        if (rightAnimController == null)
+            rightAnimController = GetComponent<AnimationStateController>();
+        if (leftAnimController == null)
+            leftAnimController = GetComponent<AnimationStateController>();
 
         if (volume != null && volume.profile.TryGet(out warp))
         {
@@ -353,7 +358,8 @@ public class TransferThrowable : MonoBehaviour
         {
             if (isPreparingThrow)
             {
-                animController.PlayThrowAnim();
+                rightAnimController.PlayThrowAnim();
+                leftAnimController.PlayThrowAnim();
             }
             isPreparingThrow = false;
 

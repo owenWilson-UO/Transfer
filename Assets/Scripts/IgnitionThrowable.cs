@@ -5,7 +5,8 @@ public class IgnitionThrowable : MonoBehaviour
     [SerializeField] private Camera   playerCamera;
     [SerializeField] private Transform knife;
     [SerializeField] private GameObject objectToThrow;
-    [SerializeField] private AnimationStateController animController;
+    [SerializeField] private AnimationStateController rightAnimController;
+    [SerializeField] private AnimationStateController leftAnimController;
     [SerializeField] private KeyCode  throwKey         = KeyCode.Mouse0;
     [SerializeField] private float    throwForce       = 15f;
     [SerializeField] private float    throwUpwardForce =  2f;
@@ -15,8 +16,8 @@ public class IgnitionThrowable : MonoBehaviour
 
     void Start()
     {
-        if (animController == null)
-            animController = GetComponentInChildren<AnimationStateController>();
+        if (leftAnimController == null)
+            leftAnimController = GetComponentInChildren<AnimationStateController>();
     }
 
     void Update()
@@ -24,13 +25,13 @@ public class IgnitionThrowable : MonoBehaviour
         if (Input.GetKeyDown(throwKey) && !isPreparingThrow)
         {
             isPreparingThrow = true;
-            animController.PlayLeftWindup();
+            leftAnimController.PlayLeftWindup();
         }
 
         if (Input.GetKeyUp(throwKey) && isPreparingThrow)
         {
             isPreparingThrow = false;
-            animController.PlayThrowLeft();
+            leftAnimController.PlayThrowLeft();
             Throw();
         }
     }
