@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEngine.ProBuilder;
 
 public class PsylinkThrowable : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class PsylinkThrowable : MonoBehaviour
 
     public bool psylinkInSight {  get; private set; }
     public bool readyToThrow;
+    [SerializeField] private GameObject projectile;
+    private bool playDespawn = false;
     public List<PsylinkAndObject> activePsylinks { get; private set; }
 
     private void Start()
@@ -51,12 +54,29 @@ public class PsylinkThrowable : MonoBehaviour
             dot.color = new(dot.color.r, dot.color.g, dot.color.b, 0f);
             circleDot.color = new(dot.color.r, dot.color.g, dot.color.b, 1f);
             outerCrossHair.rectTransform.Rotate(0f, 0f, 100f * Time.unscaledDeltaTime);
+
+            if (projectile.transform.localScale == Vector3.zero)
+            {
+                PsylinkDetection pd = projectile.GetComponent<PsylinkDetection>();
+                pd.playSpawnAnimation = true;
+                playDespawn = true;
+                projectile.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
+                Quaternion tilt = Quaternion.Euler(90f, 0f, 0f);
+                projectile.transform.rotation = projectile.transform.rotation * tilt;
+            }
         }
         else
         {
             dot.color = new(dot.color.r, dot.color.g, dot.color.b, 1f);
             circleDot.color = new(dot.color.r, dot.color.g, dot.color.b, 0f);
             outerCrossHair.rectTransform.rotation = Quaternion.identity;
+            if (playDespawn && readyToThrow)
+            {
+                playDespawn = false;
+                PsylinkDetection pd = projectile.GetComponent<PsylinkDetection>();
+                pd.playDestroyAnimation = true;
+
+            }
         }
 
         if (throwButton.action.triggered && !upgradeManagerUI.isOpen)
@@ -78,13 +98,18 @@ public class PsylinkThrowable : MonoBehaviour
 
     private void Throw(Vector3 point)
     {
+        PsylinkDetection pd = projectile.GetComponent<PsylinkDetection>();
+        pd.StopSpawnCoroutine();
+        projectile.transform.localScale = Vector3.zero;
+        playDespawn = false;
 
-        GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
-        projectile.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
+
+        GameObject projectileThrow = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
+        projectileThrow.transform.rotation = Quaternion.LookRotation(new Ray(cam.position, cam.forward).direction);
         Quaternion tilt = Quaternion.Euler(90f, 0f, 0f);
-        projectile.transform.rotation = projectile.transform.rotation * tilt;
-        Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
-        StartCoroutine(MoveToTarget(projectile.transform, point, 0.25f));
+        projectileThrow.transform.rotation = projectileThrow.transform.rotation * tilt;
+        Rigidbody projectileRB = projectileThrow.GetComponent<Rigidbody>();
+        StartCoroutine(MoveToTarget(projectileThrow.transform, point, 0.25f));
     }
 
     private IEnumerator MoveToTarget(Transform obj, Vector3 target, float duration)

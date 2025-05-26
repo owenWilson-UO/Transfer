@@ -100,8 +100,8 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 0.33333334, g: 0.33333334, b: 0.33333334, a: 1}
     m_HighlightedColor: {r: 0.6320754, g: 0.6320754, b: 0.6320754, a: 1}
-    m_PressedColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
-    m_SelectedColor: {r: 0.33333334, g: 0.33333334, b: 0.33333334, a: 1}
+    m_PressedColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 0.5882353}
+    m_SelectedColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
     m_DisabledColor: {r: 0.33333334, g: 0.33333334, b: 0.33333334, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -282,8 +282,8 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 0.33333334, g: 0.33333334, b: 0.33333334, a: 1}
     m_HighlightedColor: {r: 0.6320754, g: 0.6320754, b: 0.6320754, a: 1}
-    m_PressedColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
-    m_SelectedColor: {r: 0.33333334, g: 0.33333334, b: 0.33333334, a: 1}
+    m_PressedColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 0.5882353}
+    m_SelectedColor: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
     m_DisabledColor: {r: 0.33333334, g: 0.33333334, b: 0.33333334, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1016,7 +1016,7 @@ MonoBehaviour:
   upgradeManagerUI: {fileID: 0}
   volume: {fileID: 1423464983994237000}
   endTime: {fileID: 5683779012258292687}
-  level: 0
+  level: 2
   battery1: 40
   battery2: 30
   battery3: 25
@@ -1026,6 +1026,7 @@ MonoBehaviour:
   batteriesCollected: {fileID: 2863145671899730690}
   batteryMessage: {fileID: 468727282916766596}
   nextBatteryTime: {fileID: 334298884932723066}
+  nextButton: {fileID: 996248102947437775}
 --- !u!1 &7337508137845132788
 GameObject:
   m_ObjectHideFlags: 0

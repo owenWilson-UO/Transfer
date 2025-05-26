@@ -1,6 +1,12 @@
+using System;
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.Utilities;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
@@ -27,10 +33,13 @@ public class EndScreen : MonoBehaviour
     [SerializeField] private Image batteryImage2;
     [SerializeField] private Image batteryImage3;
 
-    [Header("Betteries Collected Messages")]
+    [Header("Batteries Collected Messages")]
     [SerializeField] private TextMeshProUGUI batteriesCollected;
     [SerializeField] private TextMeshProUGUI batteryMessage;
     [SerializeField] private TextMeshProUGUI nextBatteryTime;
+
+    [Header("Button to Activate")]
+    [SerializeField] private GameObject nextButton;
 
     private DepthOfField dof;
     private CanvasGroup cg;
@@ -49,7 +58,11 @@ public class EndScreen : MonoBehaviour
     private float timeSpeed = 10f;
 
     public bool levelComplete { get; private set; }
-    public bool animatiionDone { get; private set; } = false;
+    public bool animationDone { get; private set; } = false;
+
+    private bool LastInputWasKeyboardOrMouse;
+    private bool PreviousLastInputWasKeyboardOrMouse;
+
     void Start()
     {
         cg = GetComponent<CanvasGroup>();
@@ -65,7 +78,51 @@ public class EndScreen : MonoBehaviour
 
     private void Update()
     {
-        if (animatiionDone && timeToComplete > timer.currentTime)
+        //need to detect if the last input was from the keyboard or not
+        //to determine if we should select the ui element when the level is complete or not
+        bool gamepadUsed = Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame;
+        bool keyboardOrMouseUsed = false;
+
+        // Detect keyboard input
+        foreach (KeyControl key in Keyboard.current.allKeys)
+        {
+            if (key.wasPressedThisFrame)
+            {
+                keyboardOrMouseUsed = true;
+                break;
+            }
+        }
+
+        // Detect mouse input
+        if (Mouse.current.leftButton.wasPressedThisFrame ||
+            Mouse.current.rightButton.wasPressedThisFrame ||
+            Mouse.current.middleButton.wasPressedThisFrame ||
+            Mouse.current.delta.ReadValue() != Vector2.zero)
+        {
+            keyboardOrMouseUsed = true;
+        }
+
+        // Determine last input source based on what happened this frame
+        if (keyboardOrMouseUsed)
+            LastInputWasKeyboardOrMouse = true;
+        else if (gamepadUsed)
+            LastInputWasKeyboardOrMouse = false;
+
+        if (animationDone)
+        {
+            Cursor.lockState = LastInputWasKeyboardOrMouse ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = LastInputWasKeyboardOrMouse;
+
+            if (!LastInputWasKeyboardOrMouse && PreviousLastInputWasKeyboardOrMouse)
+            {
+                EventSystem.current.SetSelectedGameObject(nextButton);
+            }
+        }
+
+        PreviousLastInputWasKeyboardOrMouse = LastInputWasKeyboardOrMouse;
+
+
+        if (animationDone && timeToComplete > timer.currentTime)
         {
 
             timeToComplete = timeToComplete - Time.unscaledDeltaTime * timeSpeed > timer.currentTime ? timeToComplete - Time.unscaledDeltaTime * timeSpeed : timer.currentTime;
@@ -77,7 +134,7 @@ public class EndScreen : MonoBehaviour
         }
         else if (timeToComplete <= timer.currentTime)
         {
-            int numberOfBatteriesCollected = playerUpgradeData.batteriesCollectedByLevel[LevelName.Tutorial];
+            int numberOfBatteriesCollected = playerUpgradeData.batteriesCollectedByLevel[level];
             if (numberOfBatteriesCollected == 3 && batteriesCollectedCoroutine == null)
             {
                 batteriesCollectedCoroutine = StartCoroutine(IncreaseScale(batteriesCollected));
@@ -139,9 +196,16 @@ public class EndScreen : MonoBehaviour
         cg.interactable = true;
         cg.blocksRaycasts = true;
         Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        animatiionDone = true;
+        animationDone = true;
+
+        nextButton.GetComponent<Button>().interactable = true;
+        nextButton.GetComponent<Button>().enabled = true;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        if (!LastInputWasKeyboardOrMouse)
+        {
+            EventSystem.current.SetSelectedGameObject(nextButton);
+        }
 
         if (timer.currentTime > battery1)
         {

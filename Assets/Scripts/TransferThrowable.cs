@@ -38,7 +38,8 @@ public class TransferThrowable : MonoBehaviour
     [SerializeField] private float spawnDuration = 0.3f;
 
     [Header("Animation")]
-    [SerializeField] private AnimationStateController animController;
+    [SerializeField] private AnimationStateController rightAnimController;
+    [SerializeField] private AnimationStateController leftAnimController;
 
     [Header("Teleport Lens Warp")]
     [SerializeField] private Volume volume;
@@ -66,6 +67,9 @@ public class TransferThrowable : MonoBehaviour
     private Coroutine _printCoroutine;
     private Coroutine _warpCoroutine;
 
+    private bool manualTeleport;
+
+    public bool TransferLockout { get; private set; } = false;
     private void OnEnable()
     {
         throwButton.action.started += OnThrowStarted;
@@ -82,19 +86,45 @@ public class TransferThrowable : MonoBehaviour
 
     private void OnThrowStarted(InputAction.CallbackContext ctx)
     {
+
+        if (manualTeleport)
+        {
+            manualTeleport = false;
+            return;
+        }
+
+        var td = FindFirstObjectByType<ThrowableDetection>();
+        if (!readyToThrow && td != null)
+        {
+            manualTeleport = true;
+            TeleportToTransfer(td);
+            return;
+        }
+        
+        if (TransferLockout) { return; }
+
         if (readyToThrow && transferAmount > 0)
         {
             isPreparingThrow = true;
-            animController.PlayWindup();
+            rightAnimController.PlayWindup();
+            leftAnimController.PlayWindup();
         }
     }
 
     private void OnThrowEnded(InputAction.CallbackContext ctx)
     {
+        if (TransferLockout) { return; }
+
+        if (manualTeleport)
+        {
+            manualTeleport = false;
+            return;
+        }
         if (isPreparingThrow)
         {
             isPreparingThrow = false;
-            animController.PlayThrow();
+            rightAnimController.PlayThrow();
+            leftAnimController.PlayThrow();
             Throw();
         }
     }
@@ -116,8 +146,10 @@ public class TransferThrowable : MonoBehaviour
             handKnife.SetActive(transferAmount > 0);
         }
 
-        if (animController == null)
-            animController = GetComponent<AnimationStateController>();
+        if (rightAnimController == null)
+            rightAnimController = GetComponent<AnimationStateController>();
+        if (leftAnimController == null)
+            leftAnimController = GetComponent<AnimationStateController>();
 
         if (volume != null && volume.profile.TryGet(out warp))
         {
@@ -132,17 +164,16 @@ public class TransferThrowable : MonoBehaviour
         if (upgradeManagerUI.isOpen)
             return;
 
-        var td = FindFirstObjectByType<ThrowableDetection>();
-
-
         ChangeCrosshair();
+        
+        var td = FindFirstObjectByType<ThrowableDetection>();
 
         // 3) After you’ve thrown (readyToThrow==false), a click can teleport if a knife exists
         //    (or if td.targetHit is true—you keep your existing logic)
-        if (!readyToThrow && throwButton.action.triggered && td != null)
-        {
-            TeleportToTransfer(td);
-        }
+        //if (!readyToThrow && throwButton.action.triggered && td != null)
+        //{
+        //    TeleportToTransfer(td);
+        //}
 
         // 4) Also handle the “auto‐teleport on hit” you already had:
         if (td != null && td.targetHit)
@@ -319,5 +350,21 @@ public class TransferThrowable : MonoBehaviour
 
         warp.intensity.value = 0f;
         _warpCoroutine = null;
+    }
+
+    public void SetTransfferLockout(bool b)
+    {
+        if (b)
+        {
+            if (isPreparingThrow)
+            {
+                rightAnimController.PlayThrowAnim();
+                leftAnimController.PlayThrowAnim();
+            }
+            isPreparingThrow = false;
+
+            handKnife.SetActive(false);
+        }
+        TransferLockout = b;
     }
 }

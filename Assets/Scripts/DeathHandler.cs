@@ -7,7 +7,9 @@ public class DeathHandler : MonoBehaviour
 {
     private Image fadeImage;
     [SerializeField] private float fadeDuration = 1f;
+    [SerializeField] LevelName levelName;
     [SerializeField] private AbilityPickup transferPickup;
+    [SerializeField] private PsylinkAbilityPickup psylinkPickup;
     [SerializeField] PlayerUpgradeData playerUpgradeData;
     private UpgradeManagerUI upgradeManagerUI;
 
@@ -21,11 +23,7 @@ public class DeathHandler : MonoBehaviour
     {
         if (other.CompareTag("Player") || other.CompareTag("Transfer"))
         {
-            if (transferPickup.firstTimeGrabbed && playerUpgradeData.maxTransferAmount == 1)
-            {
-                playerUpgradeData.maxTransferAmount = 0;
-            }
-            upgradeManagerUI.canOpen = false;
+            ResetAbilities();
             StartCoroutine(FadeToBlack(fadeDuration));
         }
     }
@@ -51,7 +49,20 @@ public class DeathHandler : MonoBehaviour
 
     public void Reload()
     {
-        upgradeManagerUI.canOpen = false;
         StartCoroutine(FadeToBlack(0f));
     } 
+
+    private void ResetAbilities()
+    {
+        if (levelName == LevelName.Tutorial && transferPickup.firstTimeGrabbed && playerUpgradeData.maxTransferAmount == 1)
+        {
+            playerUpgradeData.maxTransferAmount = 0;
+        }
+
+        if (levelName == LevelName.Level2 && psylinkPickup.firstTimeGrabbed && playerUpgradeData.maxPsylinkAmount == 1)
+        {
+            playerUpgradeData.maxPsylinkAmount = 0;
+        }
+        upgradeManagerUI.canOpen = false;
+    }
 }

@@ -19,7 +19,11 @@
             {
                 "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
                 "key": "buildOutputDirList",
+<<<<<<< HEAD
                 "value": "{\"m_Value\":\"C:/Users/Anthony/gamedev/CS-410/Transfer/WebGL Builds;C:/Users/Acidi/Desktop/Transfer/WebGL Builds;;;;;;;;\"}"
+=======
+                "value": "{\"m_Value\":\"C:/Users/Acidi/Desktop/Transfer/build;C:/Users/Acidi/Desktop/Transfer/WebGL Builds;;;;;;;;\"}"
+>>>>>>> df0cbf0033d11abbdae4ef674905010fab3675b7
             }
         ]
     }

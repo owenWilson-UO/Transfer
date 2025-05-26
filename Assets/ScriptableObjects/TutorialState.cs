@@ -9,6 +9,8 @@ public class TutorialState : ScriptableObject
     public bool showWallRunPopup = true;
     public bool showTransferPopup = true;
 
+    public bool showPsylinkPopup = true;
+
     private void OnEnable()
     {
         showMovementPopup = true;
@@ -16,5 +18,7 @@ public class TutorialState : ScriptableObject
         showSlidePopup = true;
         showWallRunPopup = true;
         showTransferPopup = true;
+
+        showPsylinkPopup = true;
     }
 }

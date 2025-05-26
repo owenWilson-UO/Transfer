@@ -23,6 +23,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Anthony/IntroSequenceWSFX.unity
     guid: 4523c11960bd40b478ad8bad30542780
+  - enabled: 1
+    path: Assets/Scenes/Owen/Level2.unity
+    guid: 99012cb84b0bd0e408df82f3f9f95086
+  - enabled: 1
+    path: Assets/Scenes/Owen/MainMenu.unity
+    guid: 99539811a717683409941622cc9930e4
+  - enabled: 1
+    path: Assets/Scenes/Will/Level1.unity
+    guid: 834b3bd47cef3cb4cafa5942ea515c2e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
