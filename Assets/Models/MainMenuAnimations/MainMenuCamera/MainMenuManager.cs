@@ -74,7 +74,7 @@ public class MainMenuManager : MonoBehaviour
                 loader.LoadTutorial();
                 break;
             case 1:
-                //loader.LoadLevel1();
+                loader.LoadLevel1();
                 break;
             case 2:
                 loader.LoadLevel2();
