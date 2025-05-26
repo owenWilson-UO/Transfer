@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using static UnityEngine.InputSystem.InputAction;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.SceneManagement;
 
 public class UpgradeManagerUI : MonoBehaviour
 {
@@ -438,5 +439,10 @@ public class UpgradeManagerUI : MonoBehaviour
                 Cursor.visible = false;
             }
         }
+    }
+
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
     }
 }
