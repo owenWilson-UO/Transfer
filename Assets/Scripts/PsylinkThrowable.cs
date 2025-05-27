@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.InputSystem;
-using UnityEngine.ProBuilder;
+
 
 public class PsylinkThrowable : MonoBehaviour
 {
@@ -17,6 +17,9 @@ public class PsylinkThrowable : MonoBehaviour
     [SerializeField] private GameObject objectToThrow;
     [SerializeField] private PlayerUpgradeData playerUpgradeData;
     [SerializeField] private UpgradeManagerUI upgradeManagerUI;
+
+    [SerializeField] private AnimationStateController rightAnimController;
+    [SerializeField] private AnimationStateController leftAnimController;
 
     [Header("KeyBinds")]
     [SerializeField] InputActionReference throwButton;
@@ -54,7 +57,7 @@ public class PsylinkThrowable : MonoBehaviour
             dot.color = new(dot.color.r, dot.color.g, dot.color.b, 0f);
             circleDot.color = new(dot.color.r, dot.color.g, dot.color.b, 1f);
             outerCrossHair.rectTransform.Rotate(0f, 0f, 100f * Time.unscaledDeltaTime);
-
+            leftAnimController.PlayPsylinkWindup(true);
             if (projectile.transform.localScale == Vector3.zero)
             {
                 PsylinkDetection pd = projectile.GetComponent<PsylinkDetection>();
@@ -70,6 +73,7 @@ public class PsylinkThrowable : MonoBehaviour
             dot.color = new(dot.color.r, dot.color.g, dot.color.b, 1f);
             circleDot.color = new(dot.color.r, dot.color.g, dot.color.b, 0f);
             outerCrossHair.rectTransform.rotation = Quaternion.identity;
+            
             if (playDespawn && readyToThrow)
             {
                 playDespawn = false;
@@ -77,6 +81,10 @@ public class PsylinkThrowable : MonoBehaviour
                 pd.playDestroyAnimation = true;
 
             }
+        }
+        if (!psylinkInSight)
+        {
+            leftAnimController.PlayPsylinkWindup(false);
         }
 
         if (throwButton.action.triggered && !upgradeManagerUI.isOpen)
@@ -88,7 +96,7 @@ public class PsylinkThrowable : MonoBehaviour
                     Destroy(activePsylinks[0].psylink);
                     activePsylinks.RemoveAt(0);
                 }
-
+                leftAnimController.PlayPsylinkThrow();
                 Throw(hit.point); // We pass in the exact point of the interactable that the
                                   // player is looking at so when the user throws the psylink, it goes straight to that point
                 readyToThrow = false;

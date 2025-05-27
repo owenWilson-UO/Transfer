@@ -11370,6 +11370,8 @@ MonoBehaviour:
   objectToThrow: {fileID: 7991056537988920766, guid: 079c50b95590a3f4caedb31e1a8c89b7, type: 3}
   playerUpgradeData: {fileID: 11400000, guid: 64025b4d43730d34bb26a58dd666291a, type: 2}
   upgradeManagerUI: {fileID: 1589123629470925692}
+  rightAnimController: {fileID: 308605760498494035}
+  leftAnimController: {fileID: 6212811706802078252}
   throwButton: {fileID: 5263135434107427605, guid: ef2e5c4b484c72b4881fe3dc4ab1040f, type: 3}
   readyToThrow: 0
   projectile: {fileID: 7067523740344773414}
@@ -18422,6 +18424,9 @@ MonoBehaviour:
   throwTrigger: FP_Throw
   windupLeftTrigger: FP_WindupLeft
   throwLeftTrigger: FP_ThrowLeft
+  psylinkWindupTrigger: FP_PsylinkWindup
+  psylinkThrowTrigger: FP_PsylinkThrow
+  psylinkHoverBool: isPsylinkHovering
 --- !u!1001 &932540825828040344
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18619,6 +18624,9 @@ MonoBehaviour:
   throwTrigger: FP_Throw
   windupLeftTrigger: FP_WindupLeft
   throwLeftTrigger: FP_ThrowLeft
+  psylinkWindupTrigger: FP_PsylinkWindup
+  psylinkThrowTrigger: FP_PsylinkThrow
+  psylinkHoverBool: isPsylinkHovering
 --- !u!1001 &3276600242954707940
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19266,6 +19274,9 @@ MonoBehaviour:
   throwTrigger: FP_Throw
   windupLeftTrigger: FP_WindupLeft
   throwLeftTrigger: FP_ThrowLeft
+  psylinkWindupTrigger: FP_PsylinkWindup
+  psylinkThrowTrigger: FP_PsylinkThrow
+  psylinkHoverBool: isPsylinkHovering
 --- !u!4 &3094654585092654095 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 31914fcbca818a641ad00087a615c623, type: 3}
@@ -20539,6 +20550,9 @@ MonoBehaviour:
   throwTrigger: FP_Throw
   windupLeftTrigger: FP_WindupLeft
   throwLeftTrigger: FP_ThrowLeft
+  psylinkWindupTrigger: FP_PsylinkWindup
+  psylinkThrowTrigger: FP_PsylinkThrow
+  psylinkHoverBool: isPsylinkHovering
 --- !u!4 &8825688893802055832 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 31914fcbca818a641ad00087a615c623, type: 3}

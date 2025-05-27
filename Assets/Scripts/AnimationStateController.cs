@@ -31,6 +31,9 @@ public class AnimationStateController : MonoBehaviour
     [Tooltip("Must match your Animator Trigger parameter")]
     [SerializeField] private string windupLeftTrigger = "FP_WindupLeft";
     [SerializeField] private string throwLeftTrigger  = "FP_ThrowLeft";
+    [SerializeField] private string psylinkWindupTrigger = "FP_PsylinkWindup";
+    [SerializeField] private string psylinkThrowTrigger = "FP_PsylinkThrow";
+    [SerializeField] private string psylinkHoverBool = "isPsylinkHovering";
     
 
     private Quaternion _knifeRestRot;
@@ -146,6 +149,19 @@ public class AnimationStateController : MonoBehaviour
         animator.SetTrigger(throwTrigger);
     }
 
+    public void PlayPsylinkWindup(bool hovering)
+    {
+        // Debug log to verify the method is being called correctly
+        Debug.Log($"[AnimCtrl] PlayPsylinkWindup({hovering}) called");
+    
+        // Set the hover state
+        animator.SetBool(psylinkHoverBool, hovering);
+    }
+    public void PlayPsylinkThrow()
+    {
+       animator.SetTrigger(psylinkThrowTrigger);
+    }
+    
     public void PlayWindup() => animator.SetTrigger(windupTrigger);
     public void PlayLeftWindup() => animator.SetTrigger(windupLeftTrigger);
     public void PlayThrow() 
