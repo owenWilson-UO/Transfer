@@ -17,18 +17,23 @@ public class DeathHandler : MonoBehaviour
     [SerializeField] private Transform respawnPoint;
 
     private UpgradeManagerUI upgradeManagerUI;
+    private EndScreen endScreen;
 
     private void Start()
     {
         fadeImage = GameObject.Find("playerFade").GetComponent<Image>();
         upgradeManagerUI = FindAnyObjectByType<UpgradeManagerUI>();
+        endScreen = FindAnyObjectByType<EndScreen>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player") || other.CompareTag("Transfer"))
         {
-            ResetAbilities();
+            if (!checkpointReached)
+            {
+                ResetAbilities();
+            }
             StartCoroutine(FadeToBlack(fadeDuration));
         }
     }
@@ -81,6 +86,10 @@ public class DeathHandler : MonoBehaviour
 
     public void Reload()
     {
+        if (!endScreen.levelComplete)
+        {
+            ResetAbilities();
+        }
         StartCoroutine(FadeToBlack(0f));
     } 
 

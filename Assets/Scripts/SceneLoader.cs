@@ -17,23 +17,32 @@ public class SceneLoader : MonoBehaviour
     public void LoadTutorial()
     {
         Time.timeScale = 1f;
-        playerUpgradeData.maxSlowMotionDuration = 1f;
+        if (playerUpgradeData.maxSlowMotionDuration < 0f)
+        {
+            playerUpgradeData.maxSlowMotionDuration = 1f;
+        }
         LoadSceneByName("IntroSequence");
     }
 
     public void LoadLevel1()
     {
         Time.timeScale = 1f;
-        playerUpgradeData.maxTransferAmount = 1;
-        playerUpgradeData.maxSlowMotionDuration = 1f;
+        if (playerUpgradeData.maxTransferAmount < 1)
+        {
+            playerUpgradeData.maxTransferAmount = 1;
+            playerUpgradeData.maxSlowMotionDuration = 1f;
+        }
         LoadSceneByName("Level1");
     }
 
     public void LoadLevel2()
     {
         Time.timeScale = 1f;
-        playerUpgradeData.maxTransferAmount = 1;
-        playerUpgradeData.maxSlowMotionDuration = 1f;
+        if (playerUpgradeData.maxTransferAmount < 1)
+        {
+            playerUpgradeData.maxTransferAmount = 1;
+            playerUpgradeData.maxSlowMotionDuration = 1f;
+        }
         LoadSceneByName("Level2");
     }
 
