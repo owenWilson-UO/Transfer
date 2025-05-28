@@ -55,6 +55,10 @@ public class PsylinkDetection : MonoBehaviour
 
         if (playDestroyAnimation)
         {
+            if (idleLoopAudio != null && idleLoopAudio.isPlaying)
+            {
+                idleLoopAudio.Stop();
+            }
             playDestroyAnimation = false;
             if (spawnCoroutine != null)
             {
@@ -67,6 +71,11 @@ public class PsylinkDetection : MonoBehaviour
         {
             transform.Rotate(0f, 1080f * spinSpeed * Time.deltaTime, 0f);
         }
+
+        if (pt.readyToThrow == false && idleLoopAudio != null)
+        {
+            idleLoopAudio.Stop();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -75,9 +84,6 @@ public class PsylinkDetection : MonoBehaviour
 
         pt.readyToThrow = true;
         isSpinning = false;
-
-        if (idleLoopAudio != null && idleLoopAudio.isPlaying)
-            idleLoopAudio.Stop(); // Stop idle sound when attached
 
         if (targetHit) return;
 
