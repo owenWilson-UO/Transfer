@@ -14,6 +14,12 @@ public class PsylinkInteractableObject : MonoBehaviour
     private Vector3 velocity = Vector3.zero;
     private float easeAmount = 2f;
 
+    [Header("Sound Effects")]
+    [SerializeField] private AudioSource interactionAudio;
+    [SerializeField] private AudioClip onPsylinkAttachedClip;
+    private bool wasActive = false;
+
+
     private void Start()
     {
         a = transform.position;
@@ -21,12 +27,20 @@ public class PsylinkInteractableObject : MonoBehaviour
 
     private void Update()
     {
+        bool isActive = pt.activePsylinks.Any(item => item.obj == gameObject);
 
-        //updates the objects position go towards point b if a psylink is attatched, or back to point a if there is no psylink attatched
-        Vector3 target = pt.activePsylinks.Any(item => item.obj == gameObject) ? b.position : a;
+        // Play sound on transition from not active to active
+        bool shouldPlaySound = isActive && !wasActive && Vector3.Distance(transform.position, b.position) > 0.1f;
+
+        if (shouldPlaySound && interactionAudio && onPsylinkAttachedClip)
+        {
+            interactionAudio.PlayOneShot(onPsylinkAttachedClip);
+        }
+        Vector3 target = isActive ? b.position : a;
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
         
-        //this boolean is being used to stop the player from being able to throw a psylink at the object if it is moving
         isMoving = Vector3.Distance(transform.position, target) > 0.01f;
+
+        wasActive = isActive; 
     }
 }

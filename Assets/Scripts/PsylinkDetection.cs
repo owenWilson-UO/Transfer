@@ -5,7 +5,10 @@ using UnityEngine;
 
 public class PsylinkDetection : MonoBehaviour
 {
-    public Rigidbody rb {  get; private set; }
+    [Header("Audio")]
+    [SerializeField] private AudioSource idleLoopAudio;
+
+    public Rigidbody rb { get; private set; }
     PsylinkThrowable pt;
     public bool targetHit {  get; private set; }
 
@@ -30,6 +33,7 @@ public class PsylinkDetection : MonoBehaviour
         isSpinning = true;
         playSpawnAnimation = false;
         playDestroyAnimation = false;
+    
     }
 
     private void Update()
@@ -37,9 +41,14 @@ public class PsylinkDetection : MonoBehaviour
         if (playSpawnAnimation)
         {
             playSpawnAnimation = false;
-            if (spawnCoroutine != null)
-            {
+            if (spawnCoroutine != null){
                 StopCoroutine(spawnCoroutine);
+            }
+
+            if (idleLoopAudio != null && !idleLoopAudio.isPlaying)
+            {
+                idleLoopAudio.pitch = 0.75f; 
+                idleLoopAudio.Play();
             }
             spawnCoroutine = StartCoroutine(PrintCoroutine());
         }
@@ -62,33 +71,32 @@ public class PsylinkDetection : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //logic for stopping the psylink when it hits a psylink interactable object
-        if (!other.gameObject.CompareTag("PsylinkInteractable")) { return; }
+        if (!other.gameObject.CompareTag("PsylinkInteractable")) return;
+
         pt.readyToThrow = true;
         isSpinning = false;
-        if (targetHit)
-        {
-            return;
-        } 
-        else
-        {
-            foreach (var item in pt.activePsylinks.ToList()) //use ToList to avoid modifying while iterating
-            {
-                if (item.obj == other.gameObject)
-                {
-                    Destroy(item.psylink); 
-                    pt.activePsylinks.Remove(item);
-                }
-            }
 
-            pt.activePsylinks.Add(new PsylinkAndObject()
+        if (idleLoopAudio != null && idleLoopAudio.isPlaying)
+            idleLoopAudio.Stop(); // Stop idle sound when attached
+
+        if (targetHit) return;
+
+        foreach (var item in pt.activePsylinks.ToList())
+        {
+            if (item.obj == other.gameObject)
             {
-                obj = other.gameObject,
-                psylink = gameObject
-            });
-            Debug.Log(pt.activePsylinks.ToString());
-            targetHit = true;
+                Destroy(item.psylink);
+                pt.activePsylinks.Remove(item);
+            }
         }
+
+        pt.activePsylinks.Add(new PsylinkAndObject()
+        {
+            obj = other.gameObject,
+            psylink = gameObject
+        });
+
+        targetHit = true;
         rb.linearVelocity = Vector3.zero;
         rb.isKinematic = true;
         transform.SetParent(other.transform);
