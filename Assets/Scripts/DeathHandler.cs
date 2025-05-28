@@ -11,6 +11,11 @@ public class DeathHandler : MonoBehaviour
     [SerializeField] private AbilityPickup transferPickup;
     [SerializeField] private PsylinkAbilityPickup psylinkPickup;
     [SerializeField] PlayerUpgradeData playerUpgradeData;
+
+    [Header("Respawn Checkpoint")]
+    [SerializeField] private bool checkpointReached;
+    [SerializeField] private Transform respawnPoint;
+
     private UpgradeManagerUI upgradeManagerUI;
 
     private void Start()
@@ -44,7 +49,34 @@ public class DeathHandler : MonoBehaviour
         color.a = 1f;
         fadeImage.color = color;
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+
+        if (checkpointReached)
+        {
+            PlayerMovement p = FindFirstObjectByType<PlayerMovement>();
+            Rigidbody rb = p.GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.position = respawnPoint.position;
+            rb.isKinematic = false;
+
+            time = 0f;
+
+            while (time < fadeDuration)
+            {
+                time += Time.unscaledDeltaTime;
+                color.a = 1f - Mathf.Clamp01(time / fadeDuration);
+                fadeImage.color = color;
+                yield return null;
+            }
+
+            color.a = 0f;
+            fadeImage.color = color;
+            Time.timeScale = 1f;
+
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        }
     }
 
     public void Reload()

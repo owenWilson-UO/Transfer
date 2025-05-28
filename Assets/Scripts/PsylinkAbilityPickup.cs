@@ -77,7 +77,7 @@ public class PsylinkAbilityPickup : MonoBehaviour
 
         float elapsed = 0f;
         float fadeDuration = 0.2f;
-        float duration = 2f;
+        float duration = 10f;
 
         while (elapsed <= fadeDuration)
         {
