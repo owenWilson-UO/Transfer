@@ -11237,6 +11237,7 @@ MonoBehaviour:
   crouchSpeed: 3
   walkSpeed: 5
   sprintSpeed: 12
+  wallRunSpeed: 9
   acceleration: 6
   crouchTransitionSpeed: 6
   standingheight: 2
@@ -11308,8 +11309,8 @@ MonoBehaviour:
   orientation: {fileID: 6729615104567226125}
   playerMovement: {fileID: 1859275655154555831}
   wallDistance: 0.6
-  minimumJumpHeight: 1
-  wallRunGravity: 0.5
+  minimumJumpHeight: 2.5
+  wallRunGravity: 0
   wallRunJumpForce: 5
   cam: {fileID: 7656692244832652175}
   fov: 90

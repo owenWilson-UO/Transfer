@@ -21,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float crouchSpeed = 2f;
     [SerializeField] float walkSpeed = 4f;
     [SerializeField] float sprintSpeed = 8f;
+    [SerializeField] float wallRunSpeed = 8f;
     [SerializeField] float acceleration = 12f;
 
     [Header("Crouching")]
@@ -97,6 +98,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3 slopeMoveDir;
 
     Rigidbody rb;
+    WallRun wr;
     CapsuleCollider capsule;
 
     RaycastHit slopeHit;
@@ -156,6 +158,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         rb = GetComponent<Rigidbody>();
+        wr = GetComponent<WallRun>();
         capsule = rb.GetComponentInChildren<CapsuleCollider>();
 
         rb.freezeRotation = true;
@@ -271,7 +274,17 @@ public class PlayerMovement : MonoBehaviour
         horizontalMovement = Input.GetAxisRaw("Horizontal");
         verticalMovement = Input.GetAxisRaw("Vertical");
 
-        if (!isSliding)
+        if (!rb.useGravity && verticalMovement > 0)
+        {
+            Vector3 wallForward = Vector3.Cross(wr.wallNormal, Vector3.up).normalized;
+
+            //flip to match player’s facing
+            if (Vector3.Dot(wallForward, orientation.forward) < 0)
+                wallForward = -wallForward;
+
+            moveDir = wallForward;
+        }
+        else if (!isSliding)
         {
             moveDir = orientation.forward * verticalMovement + orientation.right * horizontalMovement;
         }
@@ -312,7 +325,7 @@ public class PlayerMovement : MonoBehaviour
         //Changes the movement speed of the player based on the player's state
         if (sprintButton.action.IsPressed() && (isGrounded || !rb.useGravity) && verticalMovement > 0f)
         {
-            moveSpeed = Mathf.Lerp(moveSpeed, sprintSpeed, acceleration * Time.deltaTime);
+            moveSpeed = Mathf.Lerp(moveSpeed, rb.useGravity ? sprintSpeed : wallRunSpeed, acceleration * Time.deltaTime);
             isSprinting = true;
             if (!isSliding)
             {
@@ -326,8 +339,8 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, acceleration * Time.deltaTime);
-            isSprinting = false;
+            moveSpeed = Mathf.Lerp(moveSpeed, rb.useGravity ? walkSpeed : wallRunSpeed, acceleration * Time.deltaTime);
+            isSprinting = !rb.useGravity;
         }
     }
 
