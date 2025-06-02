@@ -18,6 +18,7 @@ public class PlayerUpgradeData : ScriptableObject
     public float maxSlowMotionDuration = 0f;
     public int maxTransferAmount = 0;
     public int maxPsylinkAmount = 0;
+    public int maxIgnitionAmount = 0;
 
     public float sensMultiplier = 1.5f;
 
@@ -31,6 +32,7 @@ public class PlayerUpgradeData : ScriptableObject
         maxSlowMotionDuration = 0f;
         maxTransferAmount = 0;
         maxPsylinkAmount = 0;
+        maxIgnitionAmount = 0;
         batteriesCollectedByLevel = new Dictionary<LevelName, int>
         {
             {LevelName.Tutorial, 0 },
