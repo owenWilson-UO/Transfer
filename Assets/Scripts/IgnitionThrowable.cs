@@ -2,17 +2,25 @@ using UnityEngine;
 
 public class IgnitionThrowable : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private Camera   playerCamera;
     [SerializeField] private Transform knife;
     [SerializeField] private GameObject objectToThrow;
     [SerializeField] private AnimationStateController rightAnimController;
     [SerializeField] private AnimationStateController leftAnimController;
+
+    [Header("Throw Settings")]
     [SerializeField] private KeyCode  throwKey         = KeyCode.Mouse0;
     [SerializeField] private float    throwForce       = 15f;
     [SerializeField] private float    throwUpwardForce =  2f;
     [SerializeField] private float    knifeMaxLifetime = 10f;  // fallback despawn
 
+    [Header("Cooldown")]
+    [SerializeField, Tooltip("Time in seconds between successive throws")] 
+    private float cooldown = 1f;
+
     private bool isPreparingThrow = false;
+    private float _nextAllowedThrowTime = 0f;
 
     void Start()
     {
@@ -22,17 +30,24 @@ public class IgnitionThrowable : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(throwKey) && !isPreparingThrow)
+        // Only allow starting a new wind‑up if cooldown has expired
+        if (Input.GetKeyDown(throwKey) 
+            && !isPreparingThrow 
+            && Time.time >= _nextAllowedThrowTime)
         {
             isPreparingThrow = true;
             leftAnimController.PlayLeftWindup();
         }
 
+        // When player releases the key and we were in wind‑up...
         if (Input.GetKeyUp(throwKey) && isPreparingThrow)
         {
             isPreparingThrow = false;
             leftAnimController.PlayThrowLeft();
             Throw();
+
+            // Start cooldown: next allowed throw is current time + cooldown
+            _nextAllowedThrowTime = Time.time + cooldown;
         }
     }
 
@@ -58,7 +73,8 @@ public class IgnitionThrowable : MonoBehaviour
         {
             rb.isKinematic = false;
             rb.useGravity  = true;
-            rb.linearVelocity    = dir * throwForce + Vector3.up * throwUpwardForce;
+            rb.linearVelocity = dir * throwForce 
+                              + Vector3.up * throwUpwardForce;
         }
         else
         {
@@ -81,7 +97,7 @@ public class DespawnOnCollision : MonoBehaviour
             Destroy(gameObject, maxLifetime);
     }
 
-    void OnCollisionEnter(Collision _)
+    private void OnCollisionEnter(Collision _)
     {
         Destroy(gameObject);
     }

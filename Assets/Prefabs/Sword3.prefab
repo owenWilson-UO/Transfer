@@ -203,6 +203,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e3ad916c9c1cfb74f804afde5c1ee2b1, type: 3}
       insertIndex: -1
       addedObject: {fileID: -523615631999318351}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e3ad916c9c1cfb74f804afde5c1ee2b1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6708850240793352793}
   m_SourcePrefab: {fileID: 100100000, guid: e3ad916c9c1cfb74f804afde5c1ee2b1, type: 3}
 --- !u!4 &5093192473734543764 stripped
 Transform:
@@ -279,3 +282,17 @@ MonoBehaviour:
   spinSpeed: 1080
   spinAxis: {x: 0, y: 1, z: 0}
   initialRotationAxis: {x: 0, y: 0, z: 1}
+--- !u!114 &-6708850240793352793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5613023616394568494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fac4a818e39780040a4bec2502bf32c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  firePrefab: {fileID: 8829451551789304542, guid: e91fa0fac941e714e8c4d5709097019f, type: 3}
+  destroySelfOnHit: 1

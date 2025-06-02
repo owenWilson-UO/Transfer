@@ -9,6 +9,7 @@ TagManager:
   - Death
   - NoWallRun
   - Transfer
+  - IgnitionInteractable
   layers:
   - Default
   - TransparentFX
