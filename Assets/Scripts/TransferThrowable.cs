@@ -39,7 +39,10 @@ public class TransferThrowable : MonoBehaviour
 
     [Header("Animation")]
     [SerializeField] private AnimationStateController rightAnimController;
+    [SerializeField] private AnimationStateController transferAnimController;
     [SerializeField] private AnimationStateController leftAnimController;
+
+    [SerializeField] private Animator transferAnimator;
 
     [Header("Teleport Lens Warp")]
     [SerializeField] private Volume volume;
@@ -107,6 +110,7 @@ public class TransferThrowable : MonoBehaviour
         {
             isPreparingThrow = true;
             rightAnimController.PlayWindup();
+            transferAnimController.PlayWindup();
             leftAnimController.PlayWindup();
         }
     }
@@ -124,6 +128,7 @@ public class TransferThrowable : MonoBehaviour
         {
             isPreparingThrow = false;
             rightAnimController.PlayThrow();
+            transferAnimController.PlayWindup();
             leftAnimController.PlayThrow();
             Throw();
         }
@@ -313,6 +318,9 @@ public class TransferThrowable : MonoBehaviour
 
     private IEnumerator PrintCoroutine()
     {
+        transferAnimator.ResetTrigger("Inspect");
+        transferAnimator.ResetTrigger("FP_Windup");
+
         float elapsed = 0f;
         Transform t = handKnife.transform;
         lightning.Play();
@@ -326,12 +334,16 @@ public class TransferThrowable : MonoBehaviour
                 Mathf.Lerp(0f, _knifeRestScale.y, p),
                 _knifeRestScale.z
             );
+            transferAnimator.ResetTrigger("Inspect");
+            transferAnimator.ResetTrigger("FP_Windup");
             yield return null;
         }
 
         // ensure exact final scale
         t.localScale = _knifeRestScale;
         lightning.Stop();
+        transferAnimator.ResetTrigger("Inspect");
+        transferAnimator.ResetTrigger("FP_Windup");
         _printCoroutine = null;
     }
 
