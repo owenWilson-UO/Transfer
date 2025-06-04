@@ -23,7 +23,7 @@ public class UpgradeManagerUI : MonoBehaviour
     [SerializeField] GameObject SlowMotion;
     [SerializeField] GameObject Transfer;
     [SerializeField] GameObject Psylink;
-    //[SerializeField] GameObject Ignition; NOT IMPLEMENTED YET
+    [SerializeField] GameObject Ignition;
 
     [Header("Buttons")]
     [SerializeField] Button SMT2;
@@ -32,6 +32,8 @@ public class UpgradeManagerUI : MonoBehaviour
     [SerializeField] Button TT3;
     [SerializeField] Button P2;
     [SerializeField] Button P3;
+    [SerializeField] Button I2;
+    [SerializeField] Button I3;
 
     [Header("Select On Open Buttons")]
     [SerializeField] GameObject retryPause;
@@ -44,6 +46,8 @@ public class UpgradeManagerUI : MonoBehaviour
     [SerializeField] Image T23;
     [SerializeField] Image P12;
     [SerializeField] Image P23;
+    [SerializeField] Image I12;
+    [SerializeField] Image I23;
 
     [Header("Canvas Groups")]
     CanvasGroup cg;
@@ -91,7 +95,7 @@ public class UpgradeManagerUI : MonoBehaviour
 
     private void OnUpgradePress(CallbackContext ctx)
     {
-        if (canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isPaused && (upgradeData.maxSlowMotionDuration > 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0))
+        if (canOpen && !endScreen.levelComplete && !playerMovement.isInSlowMotion && !isPaused && (upgradeData.maxSlowMotionDuration > 0f || upgradeData.maxTransferAmount > 0 || upgradeData.maxPsylinkAmount > 0 || upgradeData.maxIgnitionAmount > 0))
         {
             //logic for opening the upgrade menu and closing it based on the key press
             isOpen = !isOpen;
@@ -220,6 +224,24 @@ public class UpgradeManagerUI : MonoBehaviour
         }
         #endregion
 
+        #region Ignition On Start
+        switch (upgradeData.maxIgnitionAmount)
+        {
+            case 2:
+                SetColorBlock(I2);
+                I12.color = blueOpaque;
+                break;
+            case 3:
+                SetColorBlock(I3);
+                SetColorBlock(I2);
+                I12.color = blueOpaque;
+                I23.color = blueOpaque;
+                break;
+            default:
+                break;
+        }
+        #endregion
+
         cg = GetComponent<CanvasGroup>();
         upgradeAnimator = GetComponent<Animator>();
         isOpen = false;
@@ -237,6 +259,7 @@ public class UpgradeManagerUI : MonoBehaviour
         SlowMotion.SetActive(upgradeData.maxSlowMotionDuration > 0f && isOpen);
         Transfer.SetActive(upgradeData.maxTransferAmount > 0 && isOpen);
         Psylink.SetActive(upgradeData.maxPsylinkAmount > 0 && isOpen);
+        Ignition.SetActive(upgradeData.maxIgnitionAmount > 0 && isOpen);
 
         GetLastInput();
 
@@ -324,6 +347,32 @@ public class UpgradeManagerUI : MonoBehaviour
             P23.color = blueOpaque;
 
             upgradeData.batteries-=2;
+        }
+    }
+    #endregion
+
+    #region Ignition Upgrades
+    public void OnIgnitionTier2Press()
+    {
+        if (upgradeData.maxIgnitionAmount == 1 && upgradeData.batteries >= 1)
+        {
+            upgradeData.maxIgnitionAmount = 2;
+            SetColorBlock(I2);
+            I12.color = blueOpaque;
+
+            upgradeData.batteries--;
+        }
+    }
+
+    public void OnIgnitionTier3Press()
+    {
+        if (upgradeData.maxIgnitionAmount == 2 && upgradeData.batteries >= 2)
+        {
+            upgradeData.maxIgnitionAmount = 3;
+            SetColorBlock(I3);
+            I23.color = blueOpaque;
+
+            upgradeData.batteries -= 2;
         }
     }
     #endregion

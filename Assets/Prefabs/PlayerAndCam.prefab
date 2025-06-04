@@ -6880,12 +6880,15 @@ MonoBehaviour:
   SlowMotion: {fileID: 5756395792983590645}
   Transfer: {fileID: 2966741897952544873}
   Psylink: {fileID: 4745421890796426017}
+  Ignition: {fileID: 2409692121720792748}
   SMT2: {fileID: 1865743358118273915}
   SMT3: {fileID: 2058807182911815427}
   TT2: {fileID: 8050646521321304836}
   TT3: {fileID: 6281832454205966452}
   P2: {fileID: 1056790648239639367}
   P3: {fileID: 1305792786861814558}
+  I2: {fileID: 3516072358009670940}
+  I3: {fileID: 664104926684302096}
   retryPause: {fileID: 1626634614823933649}
   TT1: {fileID: 5291366332069880429}
   SM12: {fileID: 4649481568735176186}
@@ -6894,6 +6897,8 @@ MonoBehaviour:
   T23: {fileID: 6938708914473603054}
   P12: {fileID: 3632340154552599346}
   P23: {fileID: 2851617745139825124}
+  I12: {fileID: 1060646057244850969}
+  I23: {fileID: 5190098319038206421}
   playerCG: {fileID: 3802326232430214105}
   pauseCG: {fileID: 8880130999555708933}
   volume: {fileID: 0}
@@ -9001,7 +9006,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2031050391468311855}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1589123629470925692}
+        m_TargetAssemblyTypeName: UpgradeManagerUI, Assembly-CSharp
+        m_MethodName: OnIgnitionTier3Press
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &7617887867634325186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10183,7 +10200,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5557303554591602227}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1589123629470925692}
+        m_TargetAssemblyTypeName: UpgradeManagerUI, Assembly-CSharp
+        m_MethodName: OnIgnitionTier2Press
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1009684081208582799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13091,7 +13120,7 @@ MonoBehaviour:
   handKnife: {fileID: 3940921149780983251}
   throwKey: 324
   throwButton: {fileID: 7247945243018653062, guid: ef2e5c4b484c72b4881fe3dc4ab1040f, type: 3}
-  throwForce: 15
+  throwForce: 20
   throwUpwardForce: 2
   upgradeData: {fileID: 11400000, guid: 64025b4d43730d34bb26a58dd666291a, type: 2}
   spawnDuration: 0.2
