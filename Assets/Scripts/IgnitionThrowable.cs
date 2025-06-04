@@ -92,6 +92,8 @@ public class IgnitionThrowable : MonoBehaviour
 
         // --- Standard throw logic below (very similar to your original) ---
 
+        float spawnDistance = 0.2f;
+        Vector3 spawnPoint = playerCamera.ViewportToWorldPoint(new Vector3(0.1f, 0.5f, spawnDistance));
         // 1) direction straight ahead
         Vector3 dir = playerCamera.transform.forward;
 
@@ -101,7 +103,7 @@ public class IgnitionThrowable : MonoBehaviour
         Quaternion rot = lookRot * offset;
 
         // 3) spawn the clone
-        GameObject proj = Instantiate(objectToThrow, knife.position, rot);
+        GameObject proj = Instantiate(objectToThrow, spawnPoint, rot);
 
         // 4) add the self‑destruct behaviour
         var despawner = proj.AddComponent<DespawnOnCollision>();

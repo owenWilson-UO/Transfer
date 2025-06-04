@@ -295,4 +295,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firePrefab: {fileID: 8829451551789304542, guid: e91fa0fac941e714e8c4d5709097019f, type: 3}
+  destroyDelay: 2
   destroySelfOnHit: 1
+  burnedMaterial: {fileID: 2100000, guid: 5882fcf59ed12994ea9bc3946492b86a, type: 2}
