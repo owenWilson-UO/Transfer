@@ -64,14 +64,14 @@ public class IgnitionDetection : MonoBehaviour
             fireInstance.transform.SetParent(other.transform, worldPositionStays: true);
             
         }
-        Renderer[] targetRenderers = other.GetComponentsInChildren<Renderer>();
-        if (targetRenderers.Length > 0)
-        {
-            // Add helper component to handle color transition
-            BurnColorLerper colorLerper = other.gameObject.AddComponent<BurnColorLerper>();
-            colorLerper.StartColorLerp(targetRenderers, destroyDelay);
+        // Renderer[] targetRenderers = other.GetComponentsInChildren<Renderer>();
+        // if (targetRenderers.Length > 0)
+        // {
+        //     // Add helper component to handle color transition
+        //     BurnColorLerper colorLerper = other.gameObject.AddComponent<BurnColorLerper>();
+        //     colorLerper.StartColorLerp(targetRenderers, destroyDelay);
 
-        }
+        // }
 
         // 9) Destroy the target object after a delay:
         Destroy(other.gameObject, destroyDelay);
