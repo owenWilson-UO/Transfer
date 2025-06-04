@@ -33,6 +33,7 @@ public class HUDManager : MonoBehaviour
     private Coroutine transferCoroutine;
     private Coroutine ignitionCoroutine;
     private Color blue = new Color(0f, 186f / 255f, 255f / 255f);
+    private Color scarlet = new Color(255f, 62f / 255f, 0f / 255f);
     private Color grey = new Color(150f / 255f, 150f / 255f, 150f / 255f);
 
     void Update()
@@ -47,7 +48,7 @@ public class HUDManager : MonoBehaviour
         ignitionAmountText.text = it.ignitionAmount.ToString();
 
         transferTextImage.color = tt.transferAmount == 0 ? grey : blue;
-        ignitionTextImage.color = (it.ignitionAmount == 0) ? grey : blue;   // ← new
+        ignitionTextImage.color = (it.ignitionAmount == 0) ? grey : scarlet;   // ← new
 
         if (tt.transferAmount < playerUpgradeData.maxTransferAmount && transferCoroutine == null && !tt.TransferLockout)
         {
