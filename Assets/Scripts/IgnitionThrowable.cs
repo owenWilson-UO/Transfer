@@ -105,7 +105,7 @@ public class IgnitionThrowable : MonoBehaviour
         }
 
         // --- Standard throw logic below ---
-        float spawnDistance = 0.2f;
+        float spawnDistance = 0.5f;
         Vector3 spawnPoint = playerCamera.ViewportToWorldPoint(new Vector3(0.1f, 0.5f, spawnDistance));
         Vector3 dir = playerCamera.transform.forward;
         Quaternion lookRot = Quaternion.LookRotation(dir, Vector3.up);

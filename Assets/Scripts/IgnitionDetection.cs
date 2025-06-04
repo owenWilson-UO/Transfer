@@ -12,11 +12,17 @@ public class IgnitionDetection : MonoBehaviour
     [Tooltip("If true, the knife destroys itself on impact.")]
     [SerializeField] private bool destroySelfOnHit = true;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
+         Collider other = collision.collider;
+        
         // Only act on objects tagged "IgnitionInteractable"
-        if (!other.gameObject.CompareTag("IgnitionInteractable"))
+        if (!collision.gameObject.CompareTag("IgnitionInteractable") && !collision.gameObject.CompareTag("Player"))
+        {
+            Destroy(gameObject);
             return;
+        }  
+         
 
         // 1) Compute a spawn position "on top" of the target's collider.
         Vector3 spawnPos = other.bounds.center - Vector3.up * other.bounds.extents.y;
