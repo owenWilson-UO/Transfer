@@ -7,7 +7,7 @@ public class IgnitionDetection : MonoBehaviour
     [SerializeField] private GameObject firePrefab;
 
     [Tooltip("Seconds to wait before actually destroying the hit object.")]
-    [SerializeField] private float destroyDelay = 2f;
+    [SerializeField] private float destroyDelay = 1.25f;
 
     [Tooltip("If true, the knife destroys itself on impact.")]
     [SerializeField] private bool destroySelfOnHit = true;
