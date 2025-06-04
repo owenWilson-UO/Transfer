@@ -11,8 +11,11 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI transferAmountText;
     [SerializeField] private TextMeshProUGUI psylinkAmountText;
     [SerializeField] private TextMeshProUGUI ignitionAmountText;
+
     [SerializeField] private TransferThrowable tt;
     [SerializeField] private PsylinkThrowable pt;
+    [SerializeField] private IgnitionThrowable it;
+
     [SerializeField] private RectTransform slowMotionTimer;
     [SerializeField] private RectTransform transferUI;
     [SerializeField] private RectTransform psylinkUI;
@@ -28,8 +31,9 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private Image ignitionTextImage;
 
     private Coroutine transferCoroutine;
-    private Color blue = new Color(0f, 186f/255f, 255f/255f);
-    private Color grey = new Color(150f/255f, 150f/255f, 150f/255f);
+    private Coroutine ignitionCoroutine;
+    private Color blue = new Color(0f, 186f / 255f, 255f / 255f);
+    private Color grey = new Color(150f / 255f, 150f / 255f, 150f / 255f);
 
     void Update()
     {
@@ -40,9 +44,11 @@ public class HUDManager : MonoBehaviour
 
         transferAmountText.text = tt.transferAmount.ToString();
         psylinkAmountText.text = (playerUpgradeData.maxPsylinkAmount - pt.activePsylinks.Count).ToString();
+        ignitionAmountText.text = it.ignitionAmount.ToString();
 
-        transferTextImage.color = tt.transferAmount == 0 ? grey : blue; 
-        
+        transferTextImage.color = tt.transferAmount == 0 ? grey : blue;
+        ignitionTextImage.color = (it.ignitionAmount == 0) ? grey : blue;   // ← new
+
         if (tt.transferAmount < playerUpgradeData.maxTransferAmount && transferCoroutine == null && !tt.TransferLockout)
         {
             transferCoroutine = StartCoroutine(TransferCooldown());
@@ -55,6 +61,26 @@ public class HUDManager : MonoBehaviour
             tt.transferAmount = 0;
             transferFillImage.fillAmount = 0f;
             transferFillBorder.fillAmount = 0f;
+        }
+
+        if (it.ignitionAmount < playerUpgradeData.maxIgnitionAmount
+            && ignitionCoroutine == null
+            && !it.IgnitionLockout)
+        {
+            ignitionCoroutine = StartCoroutine(IgnitionCooldown());
+        }
+
+        // If ignitor is locked‐out (e.g. “held” or banned), forcibly reset UI
+        if (it.IgnitionLockout)
+        {
+            if (ignitionCoroutine != null)
+            {
+                StopCoroutine(ignitionCoroutine);
+            }
+            ignitionCoroutine = null;
+            it.ignitionAmount = 0;
+            ignitionFillImage.fillAmount = 0f;
+            ignitionFillBorder.fillAmount = 0f;
         }
     }
 
@@ -83,5 +109,33 @@ public class HUDManager : MonoBehaviour
 
         StopCoroutine(transferCoroutine);
         transferCoroutine = null;
+    }
+
+    IEnumerator IgnitionCooldown()
+    {
+        
+        float duration = 5f;   
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            ignitionFillImage.fillAmount = Mathf.Clamp01(elapsed / duration);
+            if (it.ignitionAmount == 0)
+                ignitionFillBorder.fillAmount = Mathf.Clamp01(elapsed / duration);
+
+            yield return null;
+        }
+
+        // Replenish one ignition charge
+        it.ignitionAmount++;
+        ignitionFillImage.fillAmount = 1f;
+        ignitionFillBorder.fillAmount = 1f;
+
+        // Tell IgnitionThrowable to respawn the knife in hand
+        it.SpawnHandKnife();
+
+        StopCoroutine(ignitionCoroutine);
+        ignitionCoroutine = null;
     }
 }

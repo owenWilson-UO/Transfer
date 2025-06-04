@@ -8002,6 +8002,7 @@ MonoBehaviour:
   ignitionAmountText: {fileID: 5807930635927134083}
   tt: {fileID: 7462422103518416339}
   pt: {fileID: 7692983761122235597}
+  it: {fileID: 1824053057037750981}
   slowMotionTimer: {fileID: 800339265037030060}
   transferUI: {fileID: 1898367706212025432}
   psylinkUI: {fileID: 8657809941424587764}
@@ -13090,7 +13091,7 @@ MonoBehaviour:
   handKnife: {fileID: 1720622106739631447}
   throwKey: 324
   throwButton: {fileID: 7247945243018653062, guid: ef2e5c4b484c72b4881fe3dc4ab1040f, type: 3}
-  throwForce: 20
+  throwForce: 15
   throwUpwardForce: 2
   upgradeData: {fileID: 11400000, guid: 64025b4d43730d34bb26a58dd666291a, type: 2}
   spawnDuration: 0.2
@@ -13134,21 +13135,24 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7124730228914073818}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb15c312c0e5f2e49a5b23d7e86c7053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 7656692244832652175}
-  knife: {fileID: 0}
+  knife: {fileID: 1180374355116412614}
   objectToThrow: {fileID: 5613023616394568494, guid: 05d63e60bae216a4db5f369bc9dc3a69, type: 3}
   rightAnimController: {fileID: 308605760498494035}
   leftAnimController: {fileID: 6212811706802078252}
   throwKey: 323
-  throwForce: 15
+  throwForce: 20
   throwUpwardForce: 2
   knifeMaxLifetime: 10
   cooldown: 1
+  playerUpgradeData: {fileID: 11400000, guid: 64025b4d43730d34bb26a58dd666291a, type: 2}
+  handKnife: {fileID: 1957474381798151292}
+  ignitionAmount: 0
 --- !u!1 &7151630899449638432
 GameObject:
   m_ObjectHideFlags: 0
@@ -21796,6 +21800,73 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5829193164330573353, guid: 1d7abb9c7e729314aad7d0a61f4cf10b, type: 3}
   m_PrefabInstance: {fileID: 5498407307288584644}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6255270811193718610
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2626162363931718586}
+    m_Modifications:
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.072
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.108
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.017
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.74244815
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.000000096857526
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.6699035
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -84.119
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613023616394568494, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+      propertyPath: m_Name
+      value: Ignition
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+--- !u!4 &1180374355116412614 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5093192473734543764, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+  m_PrefabInstance: {fileID: 6255270811193718610}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1957474381798151292 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5613023616394568494, guid: 564f0d791b2cb3945972ebbd7924ba7a, type: 3}
+  m_PrefabInstance: {fileID: 6255270811193718610}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8390247973122311014
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22470,7 +22541,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: -5954175789050104394, guid: 31914fcbca818a641ad00087a615c623, type: 3}
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6450171667996318921, guid: 31914fcbca818a641ad00087a615c623, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 1180374355116412614}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 31914fcbca818a641ad00087a615c623, type: 3}
       insertIndex: -1
@@ -22479,6 +22553,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6212811706802078252}
   m_SourcePrefab: {fileID: 100100000, guid: 31914fcbca818a641ad00087a615c623, type: 3}
+--- !u!4 &2626162363931718586 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6450171667996318921, guid: 31914fcbca818a641ad00087a615c623, type: 3}
+  m_PrefabInstance: {fileID: 9075206474159091571}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8156289290400092706 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 31914fcbca818a641ad00087a615c623, type: 3}
