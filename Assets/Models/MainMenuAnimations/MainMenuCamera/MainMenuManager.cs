@@ -80,7 +80,7 @@ public class MainMenuManager : MonoBehaviour
                 loader.LoadLevel2();
                 break;
             case 3:
-                //loader.LoadLevel3();
+                loader.LoadLevel3();
                 break;
         }
     }
